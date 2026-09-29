@@ -1,0 +1,2484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KYAT300 스터디앱 (v3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #121B2E;
+    --bg-raise: #182543;
+    --bg-card: #1E2C4E;
+    --ink: #F3EFE4;
+    --ink-dim: #AEB6CE;
+    --gold: #E7A93D;
+    --sage: #7FA789;
+    --coral: #D9694F;
+    --limb: #7FB0E0;
+    --line: rgba(243,239,228,0.12);
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+  }
+  :root:not([data-theme="light"]) { color-scheme: dark; }
+  :root[data-theme="light"] {
+    --bg: #F6F2E8; --bg-raise: #FFFFFF; --bg-card: #FFFFFF;
+    --ink: #1E2333; --ink-dim: #6B7189; --gold: #C6821F;
+    --sage: #4F8259; --coral: #C24E36; --limb: #3E6FA3; --line: rgba(30,35,51,0.12);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #F6F2E8; --bg-raise: #FFFFFF; --bg-card: #FFFFFF;
+      --ink: #1E2333; --ink-dim: #6B7189; --gold: #C6821F;
+      --sage: #4F8259; --coral: #C24E36; --limb: #3E6FA3; --line: rgba(30,35,51,0.12);
+      color-scheme: light;
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); min-height: 100vh; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 0 18px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  header.top {
+    padding: 20px 18px 14px;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+  }
+  h1 { font-family: var(--font-display); font-weight: 600; font-size: 21px; margin: 0; letter-spacing: 0.2px; }
+  h1 span { color: var(--gold); }
+  .module-header { display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 14px; }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--bg-raise); color: var(--ink); font-size: 17px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  }
+
+  main { padding-top: 18px; padding-bottom: 90px; }
+  main.wrap { padding: 18px 18px 110px; }
+  .wrap > p.sub { color: var(--ink-dim); font-size: 13.5px; margin: 0 0 16px; line-height: 1.5; }
+
+  /* ---- Home ---- */
+  .module-card {
+    width: 100%; text-align: left; border: 1px solid var(--line); border-radius: 18px;
+    background: var(--bg-card); padding: 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 14px; color: var(--ink);
+  }
+  .module-card-body { flex: 1; }
+  .module-card-title { font-family: var(--font-display); font-size: 19px; font-weight: 600; }
+  .module-card-sub { font-size: 13px; color: var(--ink-dim); margin-top: 4px; }
+  .module-card-arrow { font-size: 20px; color: var(--gold); }
+  .module-card.alt { border-color: var(--limb); }
+  .module-card.alt .module-card-arrow { color: var(--limb); }
+  .home-section-label {
+    font-family: var(--font-display); font-size: 12.5px; font-weight: 700; color: var(--ink-dim);
+    letter-spacing: 0.5px; margin: 26px 0 10px;
+  }
+  .home-section-label:first-of-type { margin-top: 4px; }
+
+  /* ---- 대본 연습: 이름학습과 동일한 카드 스타일을 그대로 쓰는 자세 카드 ---- */
+  .script-pose-card {
+    all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 14px; width: 100%;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+  }
+  .script-pose-card:active { opacity: .85; }
+  .script-pose-card-side { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; margin-left: auto; }
+  .script-pose-card-side .car { font-size: 18px; color: var(--gold); }
+
+  /* ---- seq toggle (shared) ---- */
+  .seq-toggle { display: flex; gap: 6px; background: var(--bg-raise); border-radius: 20px; padding: 3px; width: fit-content; }
+  .seq-toggle button {
+    border: none; background: transparent; color: var(--ink-dim);
+    font-family: var(--font-body); font-weight: 600; font-size: 13px;
+    padding: 6px 14px; border-radius: 16px; cursor: pointer;
+  }
+  .seq-toggle button.active { background: var(--gold); color: #1A1305; }
+
+  /* ---- pose icon ---- */
+  .pose-icon { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-badge {
+    width: 68px; height: 68px; border-radius: 18px; background: var(--bg-raise);
+    color: var(--gold); flex-shrink: 0; padding: 9px;
+  }
+  .icon-badge.mudra { background: rgba(127,167,137,0.14); color: var(--sage); }
+  .icon-badge.pranayama { background: rgba(217,105,79,0.14); color: var(--coral); }
+  .icon-legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 12px; color: var(--ink-dim); }
+  .icon-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .icon-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ---- learn list ---- */
+  .learn-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  .learn-count { font-family: var(--font-display); font-size: 16.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .learn-num { font-family: var(--font-display); font-size: 12.5px; font-weight: 600; color: var(--ink-dim); margin-bottom: 2px; }
+  .learn-sanskrit { font-family: var(--font-display); font-size: 16.5px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .learn-breakdown { font-size: 12px; color: var(--ink-dim); margin-top: 5px; line-height: 1.6; }
+  .learn-breakdown b { color: var(--gold); font-weight: 600; }
+  .learn-breath { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; letter-spacing: 0.2px; }
+  .learn-breath.inhale { background: rgba(127,167,137,0.18); color: var(--sage); }
+  .learn-breath.exhale { background: rgba(217,105,79,0.18); color: var(--coral); }
+  .learn-asana { font-size: 14px; color: var(--ink-dim); margin-top: 3px; }
+  .learn-note { font-size: 12px; color: var(--gold); margin-top: 3px; }
+
+  /* ---- teaching script (티칭 멘트 대본) ---- */
+  .learn-row-wrap { margin-bottom: 10px; }
+  .learn-row-wrap .learn-row { margin-bottom: 0; border-radius: 16px 16px 0 0; }
+  .script-toggle-btn {
+    width: 100%; text-align: left; border: 1px solid var(--line); border-top: none;
+    background: var(--bg-raise); color: var(--gold); font-family: var(--font-body);
+    font-size: 12.5px; font-weight: 600; padding: 10px 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; border-radius: 0 0 16px 16px;
+  }
+  .script-toggle-btn .car { font-size: 16px; color: var(--ink-dim); }
+  .script-seg {
+    margin-bottom: 20px; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    border-radius: 0; padding: 0 0 16px;
+  }
+  .script-seg:last-child { border-bottom: none; }
+  .script-seg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px; }
+  .script-seg-label { font-size: 12.5px; font-weight: 700; color: var(--ink-dim); letter-spacing: 0.2px; }
+  .script-seg.is-cue .script-seg-label { color: var(--limb); }
+  .script-seg.is-side .script-seg-label { color: var(--gold); }
+  .script-seg-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-left: auto; }
+  .script-seg-edit-btn {
+    border: 1px solid var(--line); background: var(--bg-card); color: var(--ink-dim); font-size: 13px; cursor: pointer;
+    width: 27px; height: 27px; line-height: 1; border-radius: 50%; padding: 0;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .script-seg-edit-btn.unlocked { color: #fff; background: var(--gold); border-color: var(--gold); }
+  .script-seg-cancel-btn {
+    border: none; background: none; color: var(--coral); font-size: 11.5px; font-weight: 600; cursor: pointer;
+    padding: 2px 6px;
+  }
+  .script-seg-undo {
+    border: none; background: none; color: var(--ink-dim); font-size: 11.5px; cursor: pointer;
+    padding: 2px 6px; opacity: .7;
+  }
+  .script-seg-undo:active { opacity: 1; }
+  .script-seg-undo[disabled] { visibility: hidden; }
+  .script-input {
+    display: block; width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent;
+    color: var(--ink); font-family: var(--font-body); font-size: 14.5px; line-height: 1.75;
+    padding: 0; border-radius: 10px; resize: none; overflow: hidden; cursor: default;
+  }
+  .script-input:not([readonly]) {
+    background: var(--bg-card); border-color: var(--gold); padding: 9px 11px; cursor: text;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.10);
+    max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .script-input.edited[readonly] { color: var(--gold); }
+  .script-input:focus { outline: none; border-color: var(--gold); }
+  .script-panel-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; gap: 8px; flex-wrap: wrap; }
+  .script-reset-all { border: none; background: none; color: var(--coral); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
+  .script-copy-btn { border: none; background: none; color: var(--limb); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
+  .script-edited-flag { font-size: 11px; color: var(--gold); }
+  .script-backup-btn {
+    display: block; width: 100%; box-sizing: border-box; text-align: center;
+    border: 1px dashed var(--line); background: var(--bg-raise); color: var(--limb);
+    font-family: var(--font-body); font-size: 12px; font-weight: 600; line-height: 1.5;
+    padding: 10px 12px; border-radius: 12px; cursor: pointer; margin-bottom: 14px;
+  }
+  .script-backup-btn.copied { color: var(--gold); border-color: var(--gold); }
+
+  /* ---- 대본 연습(랩): 낭독/녹음 ---- */
+  .lab-playqueue {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; margin-bottom: 14px;
+  }
+  .lab-play-all-btn, .lab-stop-btn {
+    border: none; border-radius: 10px; font-family: var(--font-body); font-weight: 700;
+    font-size: 12.5px; padding: 8px 12px; cursor: pointer;
+  }
+  .lab-play-all-btn { background: var(--gold); color: #1A1305; }
+  .lab-stop-btn { background: var(--coral); color: #2A0F09; }
+  .lab-filter-btn {
+    border: 1px solid var(--line); border-radius: 10px; font-family: var(--font-body); font-weight: 700;
+    font-size: 12px; padding: 7px 11px; cursor: pointer; background: var(--bg-card); color: var(--ink-dim);
+  }
+  .lab-filter-btn.active { background: var(--limb); color: #fff; border-color: var(--limb); }
+  .lab-playing-now { font-size: 12px; color: var(--ink-dim); }
+  .lab-cat-empty-note { font-size: 12px; color: var(--ink-dim); margin: 2px 0 12px; line-height: 1.6; }
+  .lab-practice-card {
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 13px 14px; margin-bottom: 12px;
+  }
+  .lab-practice-card.now-playing { border-color: var(--gold); }
+  .lab-practice-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .lab-script-preview {
+    font-size: 13px; color: var(--ink-dim); line-height: 1.7; white-space: pre-wrap;
+    background: var(--bg-raise); border-radius: 10px; padding: 9px 11px; margin-bottom: 10px;
+  }
+  .lab-script-preview.empty { color: var(--ink-dim); font-style: italic; }
+  .rec-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rec-btn {
+    border: none; border-radius: 20px; font-family: var(--font-body); font-weight: 700; font-size: 12.5px;
+    padding: 8px 14px; cursor: pointer; background: var(--bg-raise); color: var(--ink);
+  }
+  .rec-btn.recording { background: var(--coral); color: #2A0F09; animation: rec-pulse 1.2s infinite; }
+  @keyframes rec-pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
+  .rec-hint { font-size: 11.5px; color: var(--ink-dim); }
+  .rec-take-list { display: flex; flex-direction: column; gap: 6px; }
+  .rec-take {
+    display: flex; align-items: center; gap: 8px; background: var(--bg-raise); border: 1px solid var(--line);
+    border-radius: 10px; padding: 6px 10px;
+  }
+  .rec-take.selected { border-color: var(--gold); }
+  .rec-take-exclude { background: transparent; border-style: dashed; opacity: .75; }
+  .rec-take-exclude.selected { border-color: var(--ink-dim); }
+  .rec-take-label { flex: 1; font-size: 12.5px; color: var(--ink-dim); }
+  .rec-take button { border: none; background: none; cursor: pointer; font-size: 14px; padding: 2px 5px; color: var(--ink); }
+  .rec-take .rec-take-del { color: var(--coral); font-size: 12px; }
+  .rec-take input[type=radio] { accent-color: var(--gold); width: 16px; height: 16px; }
+  .lab-mic-warning {
+    font-size: 11.5px; color: var(--coral); background: rgba(217,105,79,0.12); border-radius: 10px;
+    padding: 8px 10px; margin-bottom: 12px; line-height: 1.6;
+  }
+
+  /* ---- quiz ---- */
+  .quiz-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .score-badge { font-size: 13px; color: var(--ink-dim); }
+  .score-badge b { color: var(--gold); font-family: var(--font-display); font-size: 16px; }
+  .q-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 24px 20px; text-align: center; }
+  .q-prompt-label { font-size: 12.5px; color: var(--ink-dim); margin-bottom: 8px; }
+  .q-prompt { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.3; }
+  .q-prompt.desc-mode { font-family: var(--font-body); font-size: 15.5px; font-weight: 500; line-height: 1.6; text-align: left; }
+  .choices { display: grid; gap: 10px; margin-top: 20px; }
+  .choice-btn {
+    border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink);
+    font-family: var(--font-body); font-size: 15.5px; font-weight: 500;
+    padding: 13px 16px; border-radius: 12px; cursor: pointer; text-align: left;
+  }
+  .choice-btn.correct { border-color: var(--sage); background: rgba(127,167,137,0.16); color: var(--sage); font-weight: 700; }
+  .choice-btn.wrong { border-color: var(--coral); background: rgba(217,105,79,0.16); color: var(--coral); }
+  .choice-btn:disabled { cursor: default; }
+  .next-q-btn {
+    margin-top: 16px; width: 100%; border: none; border-radius: 12px;
+    background: var(--gold); color: #1A1305; font-family: var(--font-body);
+    font-weight: 700; font-size: 15px; padding: 13px; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .next-q-btn.show { opacity: 1; pointer-events: auto; }
+  .quiz-state { display: none; }
+  .quiz-state.active { display: block; }
+  .result-score { font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--gold); margin-top: 10px; }
+  .result-pct { font-size: 15px; color: var(--ink-dim); margin-top: 4px; }
+
+  /* ---- main sequence module extras ---- */
+  .cat-header { display: flex; align-items: baseline; gap: 8px; margin: 20px 0 8px; }
+  .cat-header:first-child { margin-top: 0; }
+  .cat-header .cat-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--gold); }
+  .cat-header .cat-sub { font-size: 12px; color: var(--ink-dim); }
+  .tag-badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 9px; letter-spacing: 0.2px; margin-left: 6px; }
+  .tag-badge.asana { background: rgba(231,169,61,0.16); color: var(--gold); }
+  .tag-badge.mudra { background: rgba(127,167,137,0.16); color: var(--sage); }
+  .tag-badge.pranayama { background: rgba(217,105,79,0.16); color: var(--coral); }
+  .icon-prompt-lg { width: 128px; height: 128px; margin: 0 auto; color: var(--gold); }
+  .icon-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+  .icon-choice-btn {
+    border: 1px solid var(--line); background: var(--bg-raise); border-radius: 14px;
+    padding: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-choice-btn .pose-icon { width: 72px; height: 72px; color: var(--ink); }
+  .icon-choice-btn.correct { border-color: var(--sage); background: rgba(127,167,137,0.16); }
+  .icon-choice-btn.correct .pose-icon { color: var(--sage); }
+  .icon-choice-btn.wrong { border-color: var(--coral); background: rgba(217,105,79,0.16); }
+  .icon-choice-btn.wrong .pose-icon { color: var(--coral); }
+  .icon-choice-btn:disabled { cursor: default; }
+
+  /* ---- dictation ---- */
+  .dict-level-toggle { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .dict-level-btn {
+    flex: 1 1 auto; min-width: 92px; border: 1px solid var(--line); background: var(--bg-raise);
+    color: var(--ink-dim); font-family: var(--font-body); font-weight: 600; font-size: 12.5px;
+    padding: 9px 6px; border-radius: 12px; cursor: pointer; text-align: center;
+  }
+  .dict-level-btn.active { background: var(--gold); color: #1A1305; border-color: var(--gold); }
+  .dict-head-slim { margin-bottom: 8px !important; }
+  .dict-card { padding: 12px 14px !important; }
+  .dict-head-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+  .icon-badge.dict-icon { width: 46px; height: 46px; padding: 7px; }
+  #mpanel-dictate.dict-typing .dict-icon { width: 30px; height: 30px; padding: 4px; }
+  .dict-target-text { font-family: var(--font-display); font-size: 16px; font-weight: 600; line-height: 1.3; padding: 7px 10px; background: var(--bg-raise); border-radius: 10px; margin-bottom: 6px; text-align: center; }
+  .blank-slot { color: var(--gold); font-weight: 700; border-bottom: 2px dashed var(--gold); padding: 0 3px; }
+  .dict-meaning-hint { font-size: 12.5px; color: var(--ink-dim); padding: 7px 10px; background: var(--bg-raise); border-radius: 10px; margin-bottom: 6px; text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dict-desc-hint { font-size: 11.5px; color: var(--ink-dim); line-height: 1.3; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .dict-input {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg-raise); color: var(--ink); font-family: var(--font-body); font-size: 16px;
+    margin-bottom: 8px; scroll-margin-top: 90px;
+    resize: none; overflow: hidden; overflow-wrap: break-word; white-space: pre-wrap;
+    line-height: 1.4; max-height: 110px; overflow-y: auto; display: block;
+  }
+  .dict-input.correct { border-color: var(--sage); }
+  .dict-input.wrong { border-color: var(--coral); }
+  .dict-reveal-box {
+    background: rgba(231,169,61,0.12); border: 1px solid var(--gold); border-radius: 10px;
+    padding: 8px; text-align: center; font-family: var(--font-display); font-size: 15px;
+    font-weight: 600; color: var(--gold); margin-bottom: 8px;
+  }
+  .dict-feedback { text-align: center; font-size: 13px; font-weight: 600; min-height: 16px; margin-bottom: 6px; }
+  .dict-feedback.correct { color: var(--sage); }
+  .dict-feedback.wrong { color: var(--coral); }
+  .dict-actions { display: flex; gap: 8px; margin-bottom: 6px; align-items: stretch; }
+  .dict-btn { flex: 1; padding: 11px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink); font-family: var(--font-body); font-weight: 700; font-size: 14px; cursor: pointer; }
+  .dict-btn.primary { background: var(--gold); color: #1A1305; border: none; }
+  .dict-btn.cheat, .dict-btn.cheat * {
+    flex: 0 0 74px; color: var(--coral); border-color: var(--coral); font-size: 11.5px; font-weight: 600;
+    padding: 8px 4px; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;
+    -webkit-touch-callout: none; touch-action: none; -webkit-tap-highlight-color: transparent; outline: none;
+  }
+  .dict-btn.cheat.active { background: rgba(217,105,79,0.18); }
+  nav.tabbar.kb-hidden { transform: translateY(110%); transition: transform 0.2s ease; }
+  nav.tabbar { transition: transform 0.2s ease; }
+  #mpanel-dictate.dict-typing > p.sub,
+  #mpanel-dictate.dict-typing > .dict-level-toggle,
+  #mpanel-dictate.dict-typing .dict-head-slim,
+  #mpanel-dictate.dict-typing .dict-desc-hint { display: none; }
+  #mpanel-dictate.dict-typing .dict-card { padding: 6px 10px !important; }
+  #mpanel-dictate.dict-typing .dict-target-text,
+  #mpanel-dictate.dict-typing .dict-meaning-hint { padding: 4px 8px !important; font-size: 13px !important; margin-bottom: 4px !important; }
+  #mpanel-dictate.dict-typing .q-prompt-label { margin-bottom: 3px !important; }
+  body.kb-mode header.top { display: none; }
+  body.kb-mode main.wrap { padding-top: 8px; }
+
+  /* ---- order fill ---- */
+  .fill-slots { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border-radius: 12px; background: var(--bg-raise); border: 1px dashed var(--line); margin-bottom: 14px; }
+  .fill-slots .slot { font-size: 12px; color: var(--ink-dim); padding: 5px 9px; border-radius: 8px; border: 1px solid var(--line); }
+  .fill-slots .slot.filled { color: var(--ink); border-color: var(--gold); background: rgba(231,169,61,0.1); font-weight: 600; }
+  .order-pool { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .order-chip {
+    font-family: var(--font-display); font-size: 15px; font-weight: 600;
+    background: var(--bg-card); border: 1px solid var(--line); color: var(--ink);
+    padding: 9px 14px; border-radius: 12px; cursor: pointer;
+  }
+  .order-chip:disabled { opacity: 0.25; cursor: default; }
+  .order-status { text-align: center; margin: 4px 0 16px; font-size: 14px; color: var(--ink-dim); min-height: 20px; }
+  .order-status.win { color: var(--sage); font-weight: 700; }
+  .order-status.err { color: var(--coral); font-weight: 700; }
+  .reset-row { text-align: center; margin-top: 14px; }
+  .pill-btn { border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink-dim); font-family: var(--font-body); font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 14px; cursor: pointer; }
+  #fillReveal { margin-bottom: 14px; min-height: 76px; }
+  .reveal-placeholder { display: flex; align-items: center; justify-content: center; min-height: 76px; border: 1px dashed var(--line); border-radius: 16px; color: var(--ink-dim); font-size: 13px; text-align: center; padding: 10px; }
+  #fillReveal .learn-row { animation: revealIn 0.25s ease; }
+  @keyframes revealIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  nav.tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg-raise); border-top: 1px solid var(--line);
+    display: flex; justify-content: center; z-index: 10;
+    padding: 6px max(env(safe-area-inset-bottom), 6px);
+  }
+  nav.tabbar .wrap { padding: 0; display: flex; width: 100%; }
+  .tab-btn { flex: 1; background: none; border: none; color: var(--ink-dim); font-family: var(--font-body); font-size: 11.5px; font-weight: 600; padding: 8px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tab-btn .ico { font-size: 19px; }
+  .tab-btn.active { color: var(--gold); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+</style>
+</head>
+<body data-build="20260920091700">
+<script>
+/* Auto-freshness check: silently fetches this same page bypassing the browser
+   cache; if the server has a newer build than what just loaded, hard-reloads
+   with a cache-busting query so every visitor always lands on the latest
+   version without needing to manually refresh. Runs once per tab session. */
+(function(){
+  try{
+    var BUILD = document.body.getAttribute('data-build');
+    var already = sessionStorage.getItem('kyat300_build');
+    if(already === BUILD) return;
+    fetch(location.origin + location.pathname, { cache: 'no-store' })
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        var m = html.match(/data-build="([^"]+)"/);
+        var latest = m && m[1];
+        if(latest && latest !== BUILD){
+          sessionStorage.setItem('kyat300_build', latest);
+          location.replace(location.pathname + '?_=' + Date.now());
+        } else if(latest){
+          sessionStorage.setItem('kyat300_build', latest);
+        }
+      })
+      .catch(function(){});
+  }catch(e){}
+})();
+</script>
+
+<!-- ============ HOME ============ -->
+<div id="view-home" class="view active">
+  <header class="top"><div class="wrap"><h1>KYAT300 <span>스터디앱 (v3)</span></h1></div></header>
+  <main class="wrap">
+    <div class="home-section-label">아사나 이름 외우기</div>
+    <button class="module-card" onclick="enterModule()">
+      <div class="module-card-body">
+        <div class="module-card-title">수리야 나마스카라</div>
+        <div class="module-card-sub">A · B — 사마스티티부터 사마스티티까지</div>
+      </div>
+      <div class="module-card-arrow">→</div>
+    </button>
+    <button class="module-card" onclick="enterMainModule()" style="margin-top:12px;">
+      <div class="module-card-body">
+        <div class="module-card-title">코리아 요가 얼라이언스 시퀀스</div>
+        <div class="module-card-sub">3~20번 · Standing → Sitting → Prone → Supine → Padma → Pranayama</div>
+      </div>
+      <div class="module-card-arrow">→</div>
+    </button>
+
+    <div class="home-section-label">대본 연습</div>
+    <button class="module-card alt" onclick="enterScriptLab()">
+      <div class="module-card-body">
+        <div class="module-card-title">🎙 티칭 멘트 대본 연습</div>
+        <div class="module-card-sub">수리야 나마스카라 A·B부터 3~20번까지 · 대본 작성 · 녹음 · 이어듣기</div>
+      </div>
+      <div class="module-card-arrow">→</div>
+    </button>
+  </main>
+</div>
+
+<!-- ============ SURYA MODULE ============ -->
+<div id="view-surya" class="view">
+  <header class="top">
+    <div class="wrap module-header">
+      <button class="back-btn" onclick="exitModule()" aria-label="뒤로">←</button>
+      <h1>수리야 나마스카라</h1>
+    </div>
+    <div class="wrap">
+      <div class="seq-toggle" role="tablist" aria-label="시퀀스 선택">
+        <button id="btnA" class="active" onclick="setSeq('A')">A · 9</button>
+        <button id="btnB" onclick="setSeq('B')">B · 17</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- LEARN -->
+    <section id="panel-learn" class="panel active">
+      <p class="sub">순서대로 한 번 쭉 훑어보며 따라해 보세요.</p>
+      <div class="icon-legend"><span><i style="background:var(--ink)"></i>머리·몸통</span><span><i style="background:var(--gold)"></i>팔</span><span><i style="background:var(--limb)"></i>다리</span></div>
+      <div id="learnList"></div>
+    </section>
+
+    <!-- ORDER FILL -->
+    <section id="panel-orderfill" class="panel">
+      <p class="sub">빈 칸에 들어갈 카운트를 순서대로 골라보세요. 맞히면 호흡·동작이 자동으로 나타나요.</p>
+      <div class="fill-slots" id="fillSlots"></div>
+      <div id="fillReveal"></div>
+      <div class="order-status" id="fillStatus"></div>
+      <div class="order-pool" id="fillPool"></div>
+      <div class="reset-row"><button class="pill-btn" onclick="resetFill()">다시 섞기</button></div>
+    </section>
+
+    <!-- QUIZ: numbers only, fixed 20 questions -->
+    <section id="panel-quiz" class="panel">
+      <div id="quizPlay" class="quiz-state active">
+        <p class="sub">숫자·산스크리트·호흡을 랜덤으로 20문제 물어봐요.</p>
+        <div class="quiz-head">
+          <div class="score-badge" id="numQProgress">문제 1 / 20</div>
+          <div class="score-badge" id="numQScoreLive">정답 0</div>
+        </div>
+        <div class="q-card">
+          <div class="q-prompt-label" id="numQLabel">질문</div>
+          <div class="q-prompt" id="numQPrompt">…</div>
+          <div class="choices" id="numQChoices"></div>
+          <button class="next-q-btn" id="numNextQBtn" onclick="nextQuizStep()">다음 문제 →</button>
+        </div>
+      </div>
+      <div id="quizResult" class="quiz-state">
+        <div class="q-card" style="text-align:center;">
+          <div class="q-prompt-label">결과</div>
+          <div class="result-score" id="resultScore">0 / 20</div>
+          <div class="result-pct" id="resultPct">0%</div>
+          <div class="score-badge" style="margin-top:10px;">이 시퀀스 최고 기록 <b id="resultBest">0 / 20</b></div>
+          <button class="next-q-btn show" onclick="startQuiz()" style="margin-top:20px;">다시 풀기</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <div class="wrap">
+      <button class="tab-btn active" data-panel="learn" onclick="setModTab('learn')"><span class="ico">📘</span>학습</button>
+      <button class="tab-btn" data-panel="orderfill" onclick="setModTab('orderfill')"><span class="ico">🔢</span>순서맞추기</button>
+      <button class="tab-btn" data-panel="quiz" onclick="setModTab('quiz')"><span class="ico">❓</span>퀴즈</button>
+    </div>
+  </nav>
+</div>
+
+<!-- ============ MAIN SEQUENCE MODULE (3~20) ============ -->
+<div id="view-main" class="view">
+  <header class="top">
+    <div class="wrap module-header">
+      <button class="back-btn" onclick="exitMainModule()" aria-label="뒤로">←</button>
+      <h1>요가 얼라이언스 시퀀스</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- LEARN -->
+    <section id="mpanel-learn" class="panel active">
+      <p class="sub">3번부터 20번까지 순서대로 훑어보세요. "↳ 이어서" 표시가 붙은 항목은 앞 번호와 함께 진행해요.</p>
+      <div class="icon-legend"><span><i style="background:var(--ink)"></i>머리·몸통</span><span><i style="background:var(--gold)"></i>팔</span><span><i style="background:var(--limb)"></i>다리</span></div>
+      <div id="mainLearnList"></div>
+    </section>
+
+    <!-- ORDER FILL -->
+    <section id="mpanel-orderfill" class="panel">
+      <p class="sub">빈 칸에 들어갈 순서를 골라보세요. 한 번호에 두 개가 들어가는 자리는 두 번 골라야 채워져요.</p>
+      <div class="fill-slots" id="mainFillSlots"></div>
+      <div id="mainFillReveal"></div>
+      <div class="order-status" id="mainFillStatus"></div>
+      <div class="order-pool" id="mainFillPool"></div>
+      <div class="reset-row"><button class="pill-btn" onclick="resetMainFill()">다시 섞기</button></div>
+    </section>
+
+    <!-- DICTATION -->
+    <section id="mpanel-dictate" class="panel">
+      <p class="sub">3번부터 20번까지 순서대로, 산스크리트 이름을 직접 타이핑하며 외워보세요.</p>
+      <div class="dict-level-toggle" role="tablist" aria-label="난이도 선택">
+        <button class="dict-level-btn active" data-level="1" onclick="setDictLevel(1)">1 · 따라쓰기</button>
+        <button class="dict-level-btn" data-level="2" onclick="setDictLevel(2)">2 · 빈칸채우기</button>
+        <button class="dict-level-btn" data-level="3" onclick="setDictLevel(3)">3 · 암기</button>
+      </div>
+
+      <div id="dictPlay">
+        <div class="quiz-head dict-head-slim">
+          <div class="score-badge" id="dictProgress">1 / 21</div>
+          <div class="score-badge" id="dictCategory">Standing Pose</div>
+        </div>
+        <div class="q-card dict-card" style="text-align:left;">
+          <div class="dict-head-row">
+            <div class="icon-badge dict-icon" id="dictIconBadge"></div>
+            <div style="flex:1; min-width:0;">
+              <div class="q-prompt-label" id="dictNumLabel">3번</div>
+              <div class="dict-desc-hint" id="dictDescHint"></div>
+            </div>
+          </div>
+          <div id="dictTargetArea"></div>
+          <textarea id="dictInput" class="dict-input" rows="1" placeholder="" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" onfocus="scrollFocusedInputIntoView(this)" onblur="onDictInputBlur()" oninput="onDictInputTyping(this)" onkeydown="if(event.key==='Enter'){ event.preventDefault(); if(document.getElementById('dictCheckBtn').style.display!=='none'){ checkDictAnswer(); } else { nextDictItem(); } }"></textarea>
+          <div class="dict-reveal-box" id="dictRevealBox" style="display:none;"></div>
+          <div class="dict-feedback" id="dictFeedback"></div>
+          <div class="dict-actions">
+            <button class="dict-btn cheat" id="dictCheatBtn" onpointerdown="startDictCheat(event)" onpointerup="endDictCheat(event)" onpointercancel="endDictCheat(event)" onlostpointercapture="endDictCheat(event)" oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;" onclick="return false;" draggable="false">🔎<br>컨닝</button>
+            <button class="dict-btn primary" id="dictCheckBtn" onclick="checkDictAnswer()">확인</button>
+          </div>
+          <button class="next-q-btn" id="dictNextBtn" onclick="nextDictItem()">다음 →</button>
+        </div>
+      </div>
+
+      <div id="dictDone" class="q-card" style="display:none; text-align:center;">
+        <div class="q-prompt-label">완료</div>
+        <div class="result-score" id="dictDoneScore">0 / 21</div>
+        <div class="result-pct">컨닝 사용 <b id="dictDoneCheat">0회</b></div>
+        <button class="next-q-btn show" onclick="restartDict()" style="margin-top:20px;">처음부터 다시</button>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="mpanel-quiz" class="panel">
+      <div id="mainQuizPlay" class="quiz-state active">
+        <p class="sub">동작을 보고 이름을 맞히거나, 이름을 보고 동작을 맞혀요.</p>
+        <div class="quiz-head">
+          <div class="score-badge" id="mainQProgress">문제 1 / 20</div>
+          <div class="score-badge" id="mainQScoreLive">정답 0</div>
+        </div>
+        <div class="q-card">
+          <div class="q-prompt-label" id="mainQLabel">질문</div>
+          <div class="q-prompt" id="mainQPrompt">…</div>
+          <div class="choices" id="mainQChoices"></div>
+          <button class="next-q-btn" id="mainNextQBtn" onclick="nextMainQuizStep()">다음 문제 →</button>
+        </div>
+      </div>
+      <div id="mainQuizResult" class="quiz-state">
+        <div class="q-card" style="text-align:center;">
+          <div class="q-prompt-label">결과</div>
+          <div class="result-score" id="mainResultScore">0 / 20</div>
+          <div class="result-pct" id="mainResultPct">0%</div>
+          <div class="score-badge" style="margin-top:10px;">최고 기록 <b id="mainResultBest">0 / 20</b></div>
+          <button class="next-q-btn show" onclick="startMainQuiz()" style="margin-top:20px;">다시 풀기</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <div class="wrap">
+      <button class="tab-btn active" data-panel="learn" onclick="setMainTab('learn')"><span class="ico">📘</span>학습</button>
+      <button class="tab-btn" data-panel="quiz" onclick="setMainTab('quiz')"><span class="ico">❓</span>퀴즈</button>
+      <button class="tab-btn" data-panel="dictate" onclick="setMainTab('dictate')"><span class="ico">✍️</span>받아쓰기</button>
+      <button class="tab-btn" data-panel="orderfill" onclick="setMainTab('orderfill')"><span class="ico">🔢</span>순서맞추기</button>
+    </div>
+  </nav>
+</div>
+
+<!-- ============ 티칭 멘트 대본 (전체 화면 편집 페이지) ============ -->
+<!-- ============ 티칭 멘트 대본 연습 (전체 시퀀스: 수리야 A·B + 3~20) ============ -->
+<div id="view-scriptlab" class="view">
+  <header class="top">
+    <div class="wrap module-header">
+      <button class="back-btn" onclick="exitScriptLab()" aria-label="뒤로">←</button>
+      <h1>티칭 멘트 대본 연습</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- EDIT LIST -->
+    <section id="lab-panel-edit" class="panel active">
+      <p class="sub">자세별 대본을 확인하고 수정하세요.</p>
+      <button class="script-backup-btn" onclick="copyAllScripts(this)">📋 전체 복사</button>
+      <div id="labEditList"></div>
+    </section>
+
+    <!-- PRACTICE / RECORDING -->
+    <section id="lab-panel-practice" class="panel">
+      <p class="sub">확정한 대본을 보면서 직접 낭독을 녹음하고, 이어서 들으며 연습하세요.</p>
+      <div class="lab-playqueue" id="labPlayQueueBar">
+        <button class="lab-play-all-btn" onclick="playSelectedQueue()">▶ 선택한 녹음 이어서 재생</button>
+        <button class="lab-stop-btn" id="labStopBtn" onclick="stopQueue()" style="display:none;">⏹ 정지</button>
+        <button class="lab-filter-btn" id="labFilterBtn" onclick="toggleLabPracticeFilter()">🎯 녹음 있는 것만 보기</button>
+        <span class="lab-playing-now" id="labPlayingNow"></span>
+      </div>
+      <div id="labPracticeList"></div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <div class="wrap">
+      <button class="tab-btn active" data-panel="edit" onclick="setLabTab('edit')"><span class="ico">✏️</span>대본 수정</button>
+      <button class="tab-btn" data-panel="practice" onclick="setLabTab('practice')"><span class="ico">🎙</span>낭독 연습</button>
+    </div>
+  </nav>
+</div>
+
+<!-- 자세 하나의 대본 편집 (전체 화면) -->
+<div id="view-script" class="view">
+  <header class="top">
+    <div class="wrap module-header">
+      <button class="back-btn" onclick="closeScriptView()" aria-label="뒤로">←</button>
+      <h1 id="scriptViewTitle">티칭 멘트</h1>
+    </div>
+  </header>
+  <main class="wrap">
+    <button class="script-backup-btn" id="scriptViewCopyAll" onclick="copyPoseScript(currentScriptId, this)">📋 복사</button>
+    <div id="scriptViewBody"></div>
+    <div class="script-panel-foot" style="margin-top:6px;">
+      <button class="script-reset-all" onclick="resetScriptPose(currentScriptId)">이 자세 전체 초기화</button>
+      <span></span>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------------- Data ---------------- */
+const seqA = [
+  {n:1, kor:'에캄', breath:'Inhale', asana:'우르드바 하스타사나', star:true},
+  {n:2, kor:'드웨', breath:'Exhale', asana:'웃타나사나', star:true},
+  {n:3, kor:'트리이니', breath:'Inhale', asana:'아르다 웃타나사나'},
+  {n:4, kor:'차트와리', breath:'Exhale', asana:'차투랑가 단다사나', star:true},
+  {n:5, kor:'판차', breath:'Inhale', asana:'우르드바 무카 스바나사나', star:true},
+  {n:6, kor:'샷', breath:'Exhale', asana:'아도 무카 스바나사나', note:'5회 호흡 유지'},
+  {n:7, kor:'삽타', breath:'Inhale', asana:'아르다 웃타나사나'},
+  {n:8, kor:'아스타', breath:'Exhale', asana:'웃타나사나'},
+  {n:9, kor:'나와', breath:'Inhale', asana:'우르드바 하스타사나'},
+];
+const seqB = [
+  {n:1, kor:'에캄', breath:'Inhale', asana:'웃카타사나', star:true},
+  {n:2, kor:'드웨', breath:'Exhale', asana:'웃타나사나'},
+  {n:3, kor:'트리이니', breath:'Inhale', asana:'아르다 웃타나사나'},
+  {n:4, kor:'차트와리', breath:'Exhale', asana:'차투랑가 단다사나'},
+  {n:5, kor:'판차', breath:'Inhale', asana:'우르드바 무카 스바나사나'},
+  {n:6, kor:'샷', breath:'Exhale', asana:'아도 무카 스바나사나'},
+  {n:7, kor:'삽타', breath:'Inhale', asana:'비라바드라사나 · Right', star:true},
+  {n:8, kor:'아스타', breath:'Exhale', asana:'차투랑가 단다사나'},
+  {n:9, kor:'나와', breath:'Inhale', asana:'우르드바 무카 스바나사나'},
+  {n:10, kor:'다샤', breath:'Exhale', asana:'아도 무카 스바나사나'},
+  {n:11, kor:'에카아다샤', breath:'Inhale', asana:'비라바드라사나 · Left', star:true},
+  {n:12, kor:'드와다샤', breath:'Exhale', asana:'차투랑가 단다사나'},
+  {n:13, kor:'트라요다샤', breath:'Inhale', asana:'우르드바 무카 스바나사나'},
+  {n:14, kor:'차투르다샤', breath:'Exhale', asana:'아도 무카 스바나사나', note:'5회 호흡 유지'},
+  {n:15, kor:'판차다샤', breath:'Inhale', asana:'아르다 웃타나사나'},
+  {n:16, kor:'쇼다샤', breath:'Exhale', asana:'웃타나사나'},
+  {n:17, kor:'삽타다샤', breath:'Inhale', asana:'웃카타사나'},
+];
+const seatedLegs = '<line x1="50" y1="80" x2="30" y2="75"/><line x1="30" y1="75" x2="50" y2="68"/><line x1="50" y1="80" x2="70" y2="75"/><line x1="70" y1="75" x2="50" y2="68"/>';
+
+const poseIcons = {
+  urdhva_hasta: {
+    torso: '<line x1="50" y1="23" x2="50" y2="62"/><circle cx="50" cy="16" r="8" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="28" x2="28" y2="6"/><line x1="50" y1="28" x2="72" y2="6"/>',
+    legs: '<line x1="50" y1="62" x2="38" y2="95"/><line x1="50" y1="62" x2="62" y2="95"/>'
+  },
+  forward_fold: {
+    torso: '<line x1="50" y1="58" x2="35" y2="75"/><circle cx="28" cy="80" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="35" y1="75" x2="26" y2="92"/>',
+    legs: '<line x1="48" y1="58" x2="46" y2="95"/><line x1="52" y1="58" x2="54" y2="95"/>'
+  },
+  half_fold: {
+    torso: '<line x1="50" y1="58" x2="22" y2="50"/><circle cx="16" cy="48" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="24" y1="51" x2="35" y2="72"/>',
+    legs: '<line x1="48" y1="58" x2="46" y2="95"/><line x1="52" y1="58" x2="54" y2="95"/>'
+  },
+  chaturanga: {
+    torso: '<line x1="22" y1="68" x2="50" y2="70"/><circle cx="16" cy="66" r="6" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="22" y1="68" x2="26" y2="86"/><line x1="26" y1="86" x2="26" y2="93"/>',
+    legs: '<line x1="50" y1="70" x2="85" y2="72"/><line x1="85" y1="72" x2="85" y2="93"/>'
+  },
+  up_dog: {
+    torso: '<line x1="26" y1="48" x2="45" y2="62"/><circle cx="20" cy="42" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="26" y1="48" x2="26" y2="90"/>',
+    legs: '<line x1="45" y1="62" x2="88" y2="78"/>'
+  },
+  down_dog: {
+    torso: '<line x1="30" y1="66" x2="38" y2="58"/><circle cx="30" cy="66" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="18" y1="88" x2="55" y2="35"/>',
+    legs: '<line x1="55" y1="35" x2="90" y2="88"/>'
+  },
+  chair: {
+    torso: '<line x1="50" y1="58" x2="48" y2="35"/><circle cx="48" cy="27" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="48" y1="35" x2="30" y2="10"/><line x1="48" y1="35" x2="66" y2="10"/>',
+    legs: '<line x1="50" y1="58" x2="40" y2="78"/><line x1="40" y1="78" x2="36" y2="95"/><line x1="50" y1="58" x2="60" y2="78"/><line x1="60" y1="78" x2="64" y2="95"/>'
+  },
+  warrior_r: {
+    torso: '<line x1="45" y1="66" x2="45" y2="35"/><circle cx="45" cy="27" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="45" y1="35" x2="28" y2="12"/><line x1="45" y1="35" x2="62" y2="12"/>',
+    legs: '<line x1="45" y1="66" x2="20" y2="93"/><line x1="45" y1="66" x2="70" y2="70"/><line x1="70" y1="70" x2="76" y2="93"/>'
+  },
+  warrior_l: {
+    torso: '<line x1="55" y1="66" x2="55" y2="35"/><circle cx="55" cy="27" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="55" y1="35" x2="72" y2="12"/><line x1="55" y1="35" x2="38" y2="12"/>',
+    legs: '<line x1="55" y1="66" x2="80" y2="93"/><line x1="55" y1="66" x2="30" y2="70"/><line x1="30" y1="70" x2="24" y2="93"/>'
+  },
+
+  utthita_trikona: {
+    torso: '<line x1="50" y1="55" x2="30" y2="35"/><circle cx="24" cy="28" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="30" y1="35" x2="26" y2="72"/><line x1="30" y1="35" x2="30" y2="8"/>',
+    legs: '<line x1="50" y1="55" x2="25" y2="95"/><line x1="50" y1="55" x2="75" y2="95"/>'
+  },
+  prasarita_pado: {
+    torso: '<line x1="50" y1="60" x2="50" y2="82"/><circle cx="50" cy="86" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="66" x2="32" y2="90"/><line x1="50" y1="66" x2="68" y2="90"/>',
+    legs: '<line x1="20" y1="95" x2="50" y2="60"/><line x1="80" y1="95" x2="50" y2="60"/>'
+  },
+  vrksasana: {
+    torso: '<line x1="50" y1="55" x2="50" y2="28"/><circle cx="50" cy="20" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="28" x2="50" y2="4"/><line x1="46" y1="5" x2="54" y2="5"/>',
+    legs: '<line x1="50" y1="55" x2="50" y2="95"/><line x1="50" y1="55" x2="35" y2="62"/><line x1="35" y1="62" x2="48" y2="58"/>'
+  },
+  ardha_baddha_padma_paschimo: {
+    torso: '<line x1="48" y1="72" x2="65" y2="64"/><line x1="65" y1="64" x2="82" y2="58"/><circle cx="84" cy="57" r="6" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="65" y1="64" x2="83" y2="68"/>',
+    legs: '<line x1="48" y1="72" x2="85" y2="74"/><line x1="48" y1="72" x2="32" y2="80"/><line x1="32" y1="80" x2="48" y2="68"/>'
+  },
+  ardha_matsyendra: {
+    torso: '<line x1="50" y1="75" x2="53" y2="45"/><circle cx="54" cy="38" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="53" y1="45" x2="38" y2="58"/><line x1="38" y1="58" x2="32" y2="78"/><line x1="53" y1="45" x2="68" y2="52"/>',
+    legs: '<line x1="50" y1="75" x2="35" y2="80"/><line x1="35" y1="80" x2="30" y2="88"/><line x1="50" y1="75" x2="65" y2="82"/><line x1="65" y1="82" x2="70" y2="90"/>'
+  },
+  urdhva_mukha_upavistha_kona: {
+    torso: '<line x1="50" y1="80" x2="53" y2="52"/><circle cx="55" cy="45" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="53" y1="52" x2="18" y2="58"/><line x1="53" y1="52" x2="82" y2="58"/>',
+    legs: '<line x1="50" y1="80" x2="18" y2="58"/><line x1="50" y1="80" x2="82" y2="58"/>'
+  },
+  salabhasana: {
+    torso: '<line x1="30" y1="48" x2="52" y2="54"/><circle cx="22" cy="42" r="6" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="30" y1="48" x2="24" y2="58"/>',
+    legs: '<line x1="52" y1="54" x2="88" y2="44"/>'
+  },
+  parsva_ardha_dhanura: {
+    torso: '<line x1="45" y1="60" x2="32" y2="42"/><circle cx="27" cy="35" r="6" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="32" y1="42" x2="80" y2="32"/>',
+    legs: '<line x1="45" y1="60" x2="15" y2="64"/><line x1="45" y1="60" x2="65" y2="48"/><line x1="65" y1="48" x2="80" y2="32"/>'
+  },
+  anantasana: {
+    torso: '<line x1="26" y1="55" x2="58" y2="58"/><circle cx="20" cy="55" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="20" y1="62" x2="14" y2="46"/><line x1="45" y1="53" x2="53" y2="14"/>',
+    legs: '<line x1="58" y1="58" x2="88" y2="60"/><line x1="50" y1="58" x2="53" y2="10"/>'
+  },
+  supta_pada_hasta: {
+    torso: '<line x1="24" y1="80" x2="50" y2="80"/><circle cx="18" cy="80" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="32" y1="76" x2="50" y2="18"/>',
+    legs: '<line x1="50" y1="80" x2="85" y2="82"/><line x1="50" y1="80" x2="50" y2="18"/>'
+  },
+  matsyasana: {
+    torso: '<line x1="50" y1="75" x2="33" y2="52"/><line x1="33" y1="52" x2="20" y2="66"/><circle cx="18" cy="68" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="42" y1="74" x2="48" y2="86"/>',
+    legs: '<line x1="50" y1="75" x2="85" y2="78"/>'
+  },
+  halasana: {
+    torso: '<line x1="32" y1="50" x2="48" y2="32"/><circle cx="18" cy="50" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="32" y1="50" x2="16" y2="60"/>',
+    legs: '<line x1="48" y1="32" x2="28" y2="15"/>'
+  },
+  padmasana: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="45" x2="30" y2="70"/><line x1="50" y1="45" x2="70" y2="70"/>',
+    legs: seatedLegs
+  },
+  kukkutasana: {
+    torso: '<line x1="50" y1="55" x2="50" y2="30"/><circle cx="50" cy="22" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="30" x2="35" y2="92"/><line x1="50" y1="30" x2="65" y2="92"/>',
+    legs: '<line x1="50" y1="55" x2="32" y2="50"/><line x1="32" y1="50" x2="50" y2="42"/><line x1="50" y1="55" x2="68" y2="50"/><line x1="68" y1="50" x2="50" y2="42"/>'
+  },
+  baddha_padmasana: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="45" y1="45" x2="28" y2="73"/><line x1="55" y1="45" x2="72" y2="73"/>',
+    legs: seatedLegs
+  },
+  viparita_karani_mudra: {
+    torso: '<line x1="28" y1="80" x2="38" y2="62"/><circle cx="18" cy="78" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="28" y1="80" x2="40" y2="66"/>',
+    legs: '<line x1="38" y1="62" x2="44" y2="10"/>'
+  },
+  yoga_mudra: {
+    torso: '<line x1="50" y1="80" x2="35" y2="65"/><circle cx="24" cy="60" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="35" y1="65" x2="58" y2="68"/>',
+    legs: seatedLegs
+  },
+  shanmukhi_mudra: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="45" x2="43" y2="37"/><line x1="50" y1="45" x2="57" y2="37"/>',
+    legs: seatedLegs
+  },
+  pranayama_sitkari: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/><path d="M53,40 Q58,37 55,34" fill="none"/>',
+    arms: '<line x1="50" y1="45" x2="32" y2="70"/><line x1="50" y1="45" x2="68" y2="70"/>',
+    legs: seatedLegs
+  },
+  pranayama_bhramari: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/>',
+    arms: '<line x1="50" y1="45" x2="38" y2="34"/><line x1="50" y1="45" x2="62" y2="34"/>',
+    legs: seatedLegs
+  },
+  pranayama_ujjayi: {
+    torso: '<line x1="50" y1="80" x2="50" y2="45"/><circle cx="50" cy="37" r="7" fill="var(--ink)" stroke="none"/><path d="M47,42 Q52,39 47,36" fill="none"/>',
+    arms: '<line x1="50" y1="45" x2="32" y2="70"/><line x1="50" y1="45" x2="68" y2="70"/>',
+    legs: seatedLegs
+  }
+};
+function iconKeyFor(asanaName){
+  if(asanaName.indexOf('비라바드라사나') !== -1){
+    return asanaName.indexOf('Left') !== -1 ? 'warrior_l' : 'warrior_r';
+  }
+  const map = {
+    '우르드바 하스타사나':'urdhva_hasta', '웃타나사나':'forward_fold', '아르다 웃타나사나':'half_fold',
+    '차투랑가 단다사나':'chaturanga', '우르드바 무카 스바나사나':'up_dog', '아도 무카 스바나사나':'down_dog',
+    '웃카타사나':'chair'
+  };
+  return map[asanaName] || 'urdhva_hasta';
+}
+function renderIconParts(p){
+  if(!p) return '';
+  const torso = p.torso.replace(/r="(\d+)"/, (m, r) => 'r="' + (parseInt(r,10)+3) + '"');
+  return '<g stroke="var(--ink)" stroke-width="13">' + torso + '</g>' +
+         '<g stroke="var(--gold)" stroke-width="11">' + p.arms + '</g>' +
+         '<g stroke="var(--limb)" stroke-width="11">' + p.legs + '</g>';
+}
+function iconSVG(asanaName){
+  return '<svg viewBox="0 0 100 100" class="pose-icon">' + renderIconParts(poseIcons[iconKeyFor(asanaName)]) + '</svg>';
+}
+function iconSVGByKey(key){
+  return '<svg viewBox="0 0 100 100" class="pose-icon">' + renderIconParts(poseIcons[key]) + '</svg>';
+}
+
+let seq = seqA;
+
+/* ---------------- Navigation ---------------- */
+function enterModule(){
+  document.getElementById('view-home').classList.remove('active');
+  document.getElementById('view-surya').classList.add('active');
+  setSeq('A');
+  setModTab('learn');
+}
+function exitModule(){
+  document.getElementById('view-surya').classList.remove('active');
+  document.getElementById('view-home').classList.add('active');
+}
+function setModTab(name){
+  const prevActive = document.querySelector('#view-surya .panel.active');
+  const prevName = prevActive ? prevActive.id.replace('panel-','') : null;
+  document.querySelectorAll('#view-surya .panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('#view-surya .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.panel===name));
+  if(prevName && prevName !== name && prevName === 'orderfill'){ resetFill(); }
+  if(name==='quiz'){ startQuiz(); }
+  window.scrollTo(0, 0);
+}
+function setSeq(name){
+  seq = name === 'A' ? seqA : seqB;
+  document.getElementById('btnA').classList.toggle('active', name==='A');
+  document.getElementById('btnB').classList.toggle('active', name==='B');
+  renderLearn();
+  resetFill();
+  if(document.getElementById('panel-quiz').classList.contains('active')){ startQuiz(); }
+}
+
+/* ---------------- Learn tab ---------------- */
+function renderLearn(){
+  const list = document.getElementById('learnList');
+  list.innerHTML = '';
+  seq.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'learn-row';
+    row.innerHTML =
+      '<div class="icon-badge">' + iconSVG(item.asana) + '</div>' +
+      '<div>' +
+        '<div class="learn-count">' + item.n + '. ' + item.kor +
+          '<span class="learn-breath ' + (item.breath==='Inhale'?'inhale':'exhale') + '">' + item.breath + '</span>' +
+        '</div>' +
+        '<div class="learn-asana">' + item.asana + (item.star ? ' ★' : '') + '</div>' +
+        (item.note ? '<div class="learn-note">' + item.note + '</div>' : '') +
+      '</div>';
+    list.appendChild(row);
+  });
+}
+
+/* ---------------- Quiz tab: 20 fixed questions, scoped to current seq (A=1-9, B=1-17) ---------------- */
+function pickChoices(correctVal, pool, count){
+  const others = pool.filter(v => v !== correctVal);
+  for(let i=others.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [others[i],others[j]]=[others[j],others[i]]; }
+  const choices = [correctVal, ...others.slice(0, count-1)];
+  for(let i=choices.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [choices[i],choices[j]]=[choices[j],choices[i]]; }
+  return choices;
+}
+function questionForItem(item){
+  const type = Math.floor(Math.random()*3);
+  let label, prompt, correctText, choices;
+  if(type === 0){
+    label = item.n + '은(는) 산스크리트로?';
+    prompt = String(item.n);
+    correctText = item.kor;
+    choices = pickChoices(item.kor, seq.map(x=>x.kor), 4);
+  } else if(type === 1){
+    label = '"' + item.kor + '"는 몇일까요?';
+    prompt = item.kor;
+    correctText = String(item.n);
+    choices = pickChoices(item.n, seq.map(x=>x.n), 4).map(String);
+  } else {
+    label = '"' + item.kor + '" 일 때 호흡은?';
+    prompt = item.kor;
+    correctText = item.breath;
+    choices = ['Inhale', 'Exhale'];
+  }
+  return {label, prompt, correctText, choices};
+}
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+function buildQuizSet(count){
+  const qs = [];
+  let cycle = [];
+  while(qs.length < count){
+    if(cycle.length === 0){
+      cycle = shuffleArr(seq.map((_,i)=>i));
+    }
+    const idx = cycle.pop();
+    qs.push(questionForItem(seq[idx]));
+  }
+  return qs;
+}
+
+let quizQuestions = [], quizIndex = 0, quizScoreCount = 0;
+
+function startQuiz(){
+  quizQuestions = buildQuizSet(20);
+  quizIndex = 0;
+  quizScoreCount = 0;
+  document.getElementById('quizPlay').classList.add('active');
+  document.getElementById('quizResult').classList.remove('active');
+  showQuizQuestion();
+}
+function showQuizQuestion(){
+  const q = quizQuestions[quizIndex];
+  document.getElementById('numQProgress').textContent = '문제 ' + (quizIndex+1) + ' / 20';
+  document.getElementById('numQScoreLive').textContent = '정답 ' + quizScoreCount;
+  document.getElementById('numQLabel').textContent = q.label;
+  document.getElementById('numQPrompt').textContent = q.prompt;
+  const box = document.getElementById('numQChoices');
+  box.innerHTML = '';
+  const nextBtn = document.getElementById('numNextQBtn');
+  nextBtn.classList.remove('show');
+  nextBtn.textContent = (quizIndex === 19) ? '결과 보기' : '다음 문제 →';
+  q.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerQuizQ(btn, c, q.correctText);
+    box.appendChild(btn);
+  });
+}
+function answerQuizQ(btn, chosen, correctText){
+  const all = document.querySelectorAll('#numQChoices .choice-btn');
+  all.forEach(b => b.disabled = true);
+  if(chosen === correctText){
+    btn.classList.add('correct');
+    quizScoreCount++;
+  } else {
+    btn.classList.add('wrong');
+    all.forEach(b => { if(b.textContent === correctText) b.classList.add('correct'); });
+  }
+  document.getElementById('numQScoreLive').textContent = '정답 ' + quizScoreCount;
+  document.getElementById('numNextQBtn').classList.add('show');
+}
+function nextQuizStep(){
+  if(quizIndex < 19){
+    quizIndex++;
+    showQuizQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+function finishQuiz(){
+  document.getElementById('quizPlay').classList.remove('active');
+  document.getElementById('quizResult').classList.add('active');
+  const pct = Math.round(quizScoreCount/20*100);
+  document.getElementById('resultScore').textContent = quizScoreCount + ' / 20';
+  document.getElementById('resultPct').textContent = pct + '%';
+  const key = 'surya-quiz-best-' + (seq === seqA ? 'A' : 'B');
+  let best = 0;
+  try { const s = localStorage.getItem(key); if(s) best = parseInt(s,10) || 0; } catch(e){}
+  if(quizScoreCount > best){
+    best = quizScoreCount;
+    try { localStorage.setItem(key, String(best)); } catch(e){}
+  }
+  document.getElementById('resultBest').textContent = best + ' / 20';
+}
+
+/* ---------------- Order-fill tab ---------------- */
+let fillPoolArr = [];
+let fillOrderNext = 0;
+
+function resetFill(){
+  fillPoolArr = seq.map((_,i)=>i);
+  for(let i=fillPoolArr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [fillPoolArr[i],fillPoolArr[j]]=[fillPoolArr[j],fillPoolArr[i]]; }
+  fillOrderNext = 0;
+  document.getElementById('fillReveal').innerHTML = '<div class="reveal-placeholder">정답을 맞히면 여기에 호흡·동작이 표시돼요</div>';
+  document.getElementById('fillStatus').textContent = '';
+  document.getElementById('fillStatus').className = 'order-status';
+  renderFillSlots();
+  renderFillPool();
+}
+function renderFillSlots(){
+  const box = document.getElementById('fillSlots');
+  box.innerHTML = '';
+  seq.forEach((s,i) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (i < fillOrderNext ? ' filled' : '');
+    slot.textContent = i < fillOrderNext ? seq[i].kor : (i+1);
+    box.appendChild(slot);
+  });
+}
+function renderFillPool(){
+  const pool = document.getElementById('fillPool');
+  pool.innerHTML = '';
+  fillPoolArr.forEach(idx => {
+    const chip = document.createElement('button');
+    chip.className = 'order-chip';
+    chip.textContent = seq[idx].kor;
+    chip.disabled = idx < fillOrderNext;
+    chip.onclick = () => pickFillChip(idx);
+    pool.appendChild(chip);
+  });
+}
+function pickFillChip(idx){
+  const status = document.getElementById('fillStatus');
+  if(idx === fillOrderNext){
+    const item = seq[idx];
+    fillOrderNext++;
+    status.textContent = '';
+    status.className = 'order-status';
+    const row = document.createElement('div');
+    row.className = 'learn-row reveal-in';
+    row.innerHTML =
+      '<div class="icon-badge">' + iconSVG(item.asana) + '</div>' +
+      '<div>' +
+        '<div class="learn-count">' + item.n + '. ' + item.kor +
+          '<span class="learn-breath ' + (item.breath==='Inhale'?'inhale':'exhale') + '">' + item.breath + '</span>' +
+        '</div>' +
+        '<div class="learn-asana">' + item.asana + (item.star ? ' ★' : '') + '</div>' +
+      '</div>';
+    const revealBox = document.getElementById('fillReveal');
+    revealBox.innerHTML = '';
+    revealBox.appendChild(row);
+    renderFillSlots();
+    renderFillPool();
+    if(fillOrderNext === seq.length){
+      status.textContent = '완성했어요! 사마스티티 🎉';
+      status.className = 'order-status win';
+    }
+  } else {
+    status.textContent = '오답이에요. 다시 골라보세요.';
+    status.className = 'order-status err';
+  }
+}
+
+/* =================== MAIN SEQUENCE MODULE (3~20) =================== */
+const flatMain = [
+  {num:3, kor:'웃티타 트리코나 아사나', meaning:'확장된 삼각형 자세', breakdown:'웃티타 <b>확장된</b> · 트리코나 <b>삼각형</b>', desc:'다리를 넓게 벌리고 옆으로 뻗어 한 손은 정강이나 바닥, 다른 손은 위로 뻗는 자세', icon:'utthita_trikona', kind:'asana', category:'Standing Pose', categoryKr:'선자세'},
+  {num:4, kor:'프라사리타 파도타나 아사나', meaning:'다리를 넓게 벌린 서서 하는 전굴 자세', breakdown:'프라사리타 <b>넓게 벌린</b> · 파도타나 <b>발을 뻗은</b>', desc:'다리를 넓게 벌리고 상체를 앞으로 숙여 바닥에 손을 짚는 자세', icon:'prasarita_pado', kind:'asana', category:'Standing Pose', categoryKr:'선자세'},
+  {num:5, kor:'브륵샤 아사나', meaning:'나무 자세', breakdown:'브륵샤 <b>나무</b>', desc:'한 발로 서서 반대발을 허벅지 안쪽에 붙이고 양손을 머리 위로 모으는 자세', icon:'vrksasana', kind:'asana', category:'Standing Pose', categoryKr:'선자세'},
+  {num:6, kor:'아르다 받다 파드마 파스치모타나 아사나', meaning:'반 묶은 연꽃 전굴 자세', breakdown:'아르다 <b>반</b> · 받다 <b>묶은</b> · 파드마 <b>연꽃</b> · 파스치모타나 <b>몸 뒷면을 뻗은</b>', desc:'한 다리는 앞으로 뻗고 다른 다리는 반연꽃으로 접은 채, 뻗은 다리 쪽으로 상체를 숙이는 자세', icon:'ardha_baddha_padma_paschimo', kind:'asana', category:'Sitting Pose', categoryKr:'앉은자세'},
+  {num:7, kor:'아르다 마첸드라 아사나', meaning:'반 척추 비틀기 자세', breakdown:'아르다 <b>반</b> · 마첸드라 <b>성자의 이름(물고기의 왕)</b>', desc:'앉은 자세에서 한쪽 무릎을 세우고 반대 팔로 감싸며 척추를 비트는 자세', icon:'ardha_matsyendra', kind:'asana', category:'Sitting Pose', categoryKr:'앉은자세'},
+  {num:8, kor:'우르드바 무카 우파비스타코나 아사나', meaning:'위를 향한 벌린 각도 자세', breakdown:'우르드바 <b>위로 향한</b> · 무카 <b>얼굴</b> · 우파비스타코나 <b>앉아서 벌린 각도</b>', desc:'앉아서 두 다리를 넓게 벌려 위로 들어올려 양손으로 발을 잡는 자세', icon:'urdhva_mukha_upavistha_kona', kind:'asana', category:'Sitting Pose', categoryKr:'앉은자세'},
+  {num:9, kor:'살라바 아사나', meaning:'메뚜기 자세', breakdown:'살라바 <b>메뚜기</b>', desc:'엎드려서 팔과 다리, 상체를 동시에 들어올리는 자세', icon:'salabhasana', kind:'asana', category:'Prone Pose', categoryKr:'엎드린자세'},
+  {num:10, kor:'파르스바 아르다 다누라 아사나', meaning:'옆으로 하는 반 활 자세', breakdown:'파르스바 <b>옆면</b> · 아르다 <b>반</b> · 다누라 <b>활</b>', desc:'옆으로 누워 한쪽 다리를 뒤로 접어 같은 쪽 손으로 발을 잡고 몸을 활처럼 휘는 자세', icon:'parsva_ardha_dhanura', kind:'asana', category:'Prone Pose', categoryKr:'엎드린자세'},
+  {num:11, kor:'아난타 아사나', meaning:'비슈누의 휴식 자세', breakdown:'아난타 <b>끝없는(비슈누의 다른 이름)</b>', desc:'옆으로 누워 한 손으로 머리를 받치고, 위쪽 다리를 들어 반대 손으로 잡는 자세', icon:'anantasana', kind:'asana', category:'Prone Pose', categoryKr:'엎드린자세'},
+  {num:12, kor:'숩타 파다 하스타 아사나', meaning:'누워서 발 잡는 자세', breakdown:'숩타 <b>누운</b> · 파다 <b>발</b> · 하스타 <b>손</b>', desc:'누워서 한쪽 다리를 곧게 들어올려 손으로 발을 잡는 자세', icon:'supta_pada_hasta', kind:'asana', category:'Supine Pose', categoryKr:'누운자세'},
+  {num:13, kor:'맛츠야 아사나', meaning:'물고기 자세', breakdown:'맛츠야 <b>물고기</b>', desc:'누워서 가슴을 들어올리고 정수리를 바닥에 살짝 대는 자세', icon:'matsyasana', kind:'asana', category:'Supine Pose', categoryKr:'누운자세'},
+  {num:14, kor:'할라 아사나', meaning:'쟁기 자세', breakdown:'할라 <b>쟁기</b>', desc:'누워서 다리를 머리 위로 넘겨 발끝을 머리 뒤 바닥에 대는 자세', icon:'halasana', kind:'asana', category:'Supine Pose', categoryKr:'누운자세'},
+  {num:14, kor:'비파리타 카라니 무드라', meaning:'역전 행위 인장', breakdown:'비파리타 <b>뒤집힌</b> · 카라니 <b>행위</b> · 무드라 <b>인장</b>', desc:'누워서 엉덩이를 들고 다리를 수직으로 올린 뒤 손으로 허리를 받치는 자세', icon:'viparita_karani_mudra', kind:'mudra', category:'Supine Pose', categoryKr:'누운자세', cont:true},
+  {num:15, kor:'파드마 아사나', meaning:'연꽃 자세', breakdown:'파드마 <b>연꽃</b>', desc:'양다리를 반대쪽 허벅지 위에 올려 교차해 앉는 자세', icon:'padmasana', kind:'asana', category:'Padma', categoryKr:'연꽃좌'},
+  {num:16, kor:'쿡쿠타 아사나', meaning:'수탉 자세', breakdown:'쿡쿠타 <b>수탉</b>', desc:'연꽃 자세에서 팔을 다리 사이로 넣어 몸 전체를 바닥에서 들어올리는 자세', icon:'kukkutasana', kind:'asana', category:'Padma', categoryKr:'연꽃좌'},
+  {num:17, kor:'받다 파드마 아사나', meaning:'묶은 연꽃 자세', breakdown:'받다 <b>묶은</b> · 파드마 <b>연꽃</b>', desc:'연꽃 자세에서 양팔을 등 뒤로 돌려 반대쪽 발을 붙잡는 자세', icon:'baddha_padmasana', kind:'asana', category:'Padma', categoryKr:'연꽃좌'},
+  {num:17, kor:'요가 무드라', meaning:'요가 인장', breakdown:'요가 <b>합일(요가)</b> · 무드라 <b>인장</b>', desc:'연꽃 자세로 앉아 양손을 등 뒤에서 맞잡고 상체를 숙여 이마를 바닥에 대는 자세', icon:'yoga_mudra', kind:'mudra', category:'Padma', categoryKr:'연꽃좌', cont:true},
+  {num:18, kor:'시칼리', meaning:'쉿소리 호흡', breakdown:'시칼리 <b>쉿 소리(치찰음)를 내는 호흡</b>', desc:'혀를 살짝 말아 입으로 들이쉬고 코로 내쉬며 쉿 소리를 내는 호흡법', icon:'pranayama_sitkari', kind:'pranayama', category:'Pranayama', categoryKr:'호흡'},
+  {num:19, kor:'브라마리', meaning:'벌소리 호흡', breakdown:'브라마리 <b>벌이 웅웅거리는 소리를 내는 호흡</b>', desc:'귀를 손가락으로 막고 벌이 웅웅거리는 듯한 콧소리를 내며 내쉬는 호흡법', icon:'pranayama_bhramari', kind:'pranayama', category:'Pranayama', categoryKr:'호흡'},
+  {num:19, kor:'샨무키 무드라', meaning:'육문을 닫는 인장', breakdown:'샨무키 <b>여섯 개의 문(얼굴의 구멍들)</b> · 무드라 <b>인장</b>', desc:'브라마리 호흡 중 손가락으로 눈·귀·코·입 등 얼굴의 구멍을 살짝 막는 손동작', icon:'shanmukhi_mudra', kind:'mudra', category:'Pranayama', categoryKr:'호흡', cont:true},
+  {num:20, kor:'웃자이', meaning:'승리의 호흡', breakdown:'웃자이 <b>승리한</b>', desc:'목구멍을 살짝 조여 파도소리 같은 마찰음을 내며 코로 쉬는 호흡법', icon:'pranayama_ujjayi', kind:'pranayama', category:'Pranayama', categoryKr:'호흡'}
+];
+const kindLabel = {asana:'Asana', mudra:'Mudra', pranayama:'Pranayama'};
+
+/* ---- 티칭 멘트 대본 (flatMain과 같은 순서 · index로 매칭) ---- */
+const teachingScript = [
+{num:'3', paras:[
+  {t:'타다아사나로 섭니다. 양손으로 골반을 잡고 오른쪽으로 양발을 어깨너비 두 배 정도로 벌립니다. 엄지발가락은 약간 안쪽으로, 두 번째 발가락이 11자가 되도록 하여 고관절 정렬을 확인합니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'양팔을 어깨높이로 넓게 벌려, 오른발을 90도로 열고 왼발은 살짝 안쪽으로 돌립니다. 골반저에 반다하고, 마시고 내쉬며 몸통을 오른쪽으로 구부려 오른손바닥으로 발목 바깥쪽 바닥을 가볍게 지지합니다. 불편하면 손끝이나 발목 아무 곳이나 짚어도 좋습니다. 왼팔은 위로 뻗어 시선은 왼 손끝을 향해 천장을 바라봅니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 뻗은 무릎이 과신전되지 않게.', italics:true},
+  {t:'투 — 몸통 측면을 바닥과 평행하게.', italics:true},
+  {t:'쓰리 — 양팔을 수직으로 쭉 뻗어냅니다.', italics:true},
+  {t:'골반저에 반다하고 고개를 아래로 돌려, 양팔을 다시 어깨 높이로 수평이 되게 하고 양손을 골반에 얹어 고관절 정렬을 확인합니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼발을 90도로 열고 오른발은 살짝 안쪽으로 돌립니다. 골반저에 반다하고, 마시고 내쉬며 몸통을 왼쪽으로 구부려 왼손바닥으로 발목 바깥쪽 바닥을 가볍게 지지합니다. 오른팔은 위로 뻗어 시선은 오른 손끝을 향해 천장을 바라봅니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 두 다리 동등한 힘으로 견고하게 바닥을 밉니다.', italics:true},
+  {t:'투 — 골반이 밖으로 빠지지 않게.', italics:true},
+  {t:'쓰리 — 손바닥에 체중을 싣지 않습니다.', italics:true},
+  {t:'골반저에 반다하고 고개를 아래로 돌려, 양팔을 다시 어깨 높이로 수평이 되게 한 후 양손을 골반에 얹어 고관절 정렬을 확인하고, 두 발을 모아 타다아사나로 돌아옵니다.'},
+]},
+{num:'4', paras:[
+  {t:'타다아사나로 매트 앞에 바르게 섭니다. 양손으로 골반을 잡고 오른쪽으로 몸을 돌려 양발을 어깨너비 두 배 정도로 벌립니다. 엄지발가락은 약간 안쪽으로, 두 번째 발가락이 11자가 되도록 하여 고관절 정렬을 확인합니다.'},
+  {t:'골반저에 반다하고 마시면서 흉곽을 확장하며 천장을 보고, 내쉬면서 상체를 숙여 양손바닥을 양발 사이에 어깨너비로 내려놓습니다. 손끝과 발끝이 나란해지도록 맞춰줍니다. 이때 턱이 들리지 않게 합니다. 마시면서 등을 오목하게, 팔꿈치를 펴서 고개 들어 정면을 보고, 내쉬면서 팔꿈치를 구부려 정수리를 바닥으로 낮춥니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 체중을 손이나 정수리에 싣지 않고.', italics:true},
+  {t:'투 — 고관절이 충분히 확장되게 하고.', italics:true},
+  {t:'쓰리 — 척추가 중력 방향으로 길게 늘어나도록 합니다.', italics:true},
+  {t:'마시면서 머리를 들고 팔을 펴서 등을 오목하게 하며 정면을 보고, 내쉬면서 골반저에 반다하며 양손을 골반에 얹어 천천히 상체를 세워 올라옵니다. 왼발을 왼쪽으로 돌려 열고 오른발을 모아 타다아사나로 섭니다.'},
+]},
+{num:'5', paras:[
+  {t:'타다아사나로 섭니다. 양손으로 골반을 잡아 정렬을 확인하고, 시선으로 코끝을 통해 바닥 한 점을 응시합니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른 무릎을 굽혀 오른손으로 오른발목을 잡아 뒤꿈치를 회음 가까이 가져오고, 발바닥은 내전근 안쪽으로 바짝 붙입니다. 균형 잡기 어려우면 종아리나 발목 옆에 두어도 좋습니다. 오른 무릎이 오른 어깨와 일직선이 되도록 열어주고, 다시 한번 골반 정렬을 확인합니다. 골반저에 반다하며 양손을 가슴 앞에 합장하고 중심을 확인합니다. 양팔을 옆으로 크게 벌려 손바닥은 천장을 향하게 하고, 위로 길게 뻗어 팔 안쪽을 귀 옆에 붙이며 양손바닥을 마주하여 유지합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 발바닥이 뿌리내리듯 바닥을 지긋이 누르며 몸의 중심을 느껴봅니다.', italics:true},
+  {t:'투 — 어깨 긴장을 풀고 얼굴에는 미소를 띄워봅니다.', italics:true},
+  {t:'쓰리 — 균형이 흔들려도 다시 중심으로 돌아옵니다.', italics:true},
+  {t:'양팔을 어깨 높이까지 크게 벌려 손바닥을 아래로 회전하고, 다시 왼손은 골반을 잡고 오른손은 오른 발목을 잡아 천천히 오른 다리를 내려줍니다. 양손을 골반에 얹어 정렬을 확인하고 타다아사나로 다시 섭니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼 무릎을 굽혀 왼손으로 왼발목을 잡아 뒤꿈치를 회음 가까이 가져오고, 발바닥은 내전근 안쪽으로 바짝 붙입니다. 왼 무릎이 왼 어깨와 일직선이 되도록 열어주고, 다시 한번 골반 정렬을 확인합니다. 골반저에 반다하며 양손을 가슴 앞에 합장하고 중심을 확인합니다. 양팔을 옆으로 크게 벌려 손바닥은 천장을 향하게 하고, 위로 길게 뻗어 팔 안쪽을 귀 옆에 붙이며 양손바닥을 마주하여 유지합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 바닥을 누르고 있는 발바닥에 집중하고.', italics:true},
+  {t:'투 — 무릎이 뜨지 않게 하고.', italics:true},
+  {t:'쓰리 — 부드럽고 자연스럽게 호흡합니다.', italics:true},
+  {t:'양팔을 어깨 높이까지 크게 벌려 손바닥을 아래로 회전하고, 다시 오른손은 골반을 잡고 왼손은 왼 발목을 잡아 천천히 왼 다리를 내려줍니다. 양손을 골반에 얹어 정렬을 확인하고 타다아사나로 다시 섭니다.'},
+]},
+{num:'6', paras:[
+  {t:'단다아사나로 앉습니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른 무릎을 굽혀 오른 발등을 왼 고관절 깊숙이 올려 놓습니다. 오른팔을 뒤로 크게 돌려 오른발 앞쪽 혹은 엄지발가락을 잡습니다. 골반저에 반다하며 왼팔을 위로 길게 뻗어 척추 정렬을 맞춘 후, 왼손을 내려 왼발 바깥쪽 족궁을 넓게 감싸 잡습니다. 마시면서 척추를 45도 방향으로 길게 신전하고, 내쉬면서 척추 마디마디 늘리며 앞으로 굽혀줍니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 과신전되지 않게 지긋이 왼 다리를 뻗고.', italics:true},
+  {t:'투 — 양쪽 어깨 나란히 수평을 맞추고.', italics:true},
+  {t:'쓰리 — 척추 전체를 골고루 길게 뻗어줍니다.', italics:true},
+  {t:'다시 골반저에 반다하며 시선 정면을 보고 척추를 45도 방향으로 길게 편 후, 양손과 다리를 풀어 단다아사나로 돌아옵니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼 무릎을 굽혀 왼 발등을 오른 고관절 깊숙이 올려 놓습니다. 왼팔을 뒤로 크게 돌려 왼발 앞쪽 혹은 엄지발가락을 잡습니다. 골반저에 반다하며 오른팔을 위로 길게 뻗어 척추 정렬을 맞춘 후, 오른손을 내려 오른발 바깥쪽 족궁을 감싸 잡습니다. 마시면서 척추를 45도로 길게 신전하고, 내쉬면서 척추 마디마디 앞으로 숙여 내려옵니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 어깨의 수평을 한번 맞춰보고.', italics:true},
+  {t:'투 — 골반을 지긋이 바닥으로 밀어주고.', italics:true},
+  {t:'쓰리 — 척추 마디마디 불편함 없이 길게 뻗어냅니다.', italics:true},
+  {t:'다시 골반저에 반다하며 시선 정면을 바라보고 척추를 45도 방향으로 등을 펴서, 양손과 다리를 풀어 단다아사나로 돌아옵니다.'},
+]},
+{num:'7', paras:[
+  {t:'단다아사나로 앉습니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'양 무릎을 어깨너비로 굽혀 뒤꿈치에서 둔근까지 편안한 간격을 유지합니다. 양손으로 무릎 앞쪽을 잡고 척추를 중앙에서 바르게 늘려줍니다. 오른 무릎 아래에서 오른손으로 왼발을 잡아 뒤꿈치를 오른쪽 대둔근 바깥쪽으로 붙이고, 왼 무릎은 척추 중앙과 맞춰줍니다. 왼손으로 오른발을 들어 왼 무릎 바깥쪽에 붙이고 고관절 정렬을 확인합니다. 오른손을 뒤로 뻗어 꼬리뼈에서 한 뼘 정도 뒤에 손끝이 뒤를 향하게 가볍게 내립니다. 왼팔을 위로 들어 귀옆으로 가져와 척추를 신전하며 깊숙한 근막까지 활성화합니다. 골반저에 반다하며 마시고, 내쉬면서 오른 무릎 바깥쪽으로 깊게 보내 손바닥으로 허벅지를 감싸봅니다. 안정적이면 골반저 반다하며 마시고 길게 내쉬면서 척추 기저부에서부터 요추, 흉추, 마지막 경추 순으로 회전하여 턱을 오른 어깨끝으로 돌립니다. 편안하면 오른팔을 등 뒤로 보내 반대편 팔뚝을 잡아보고, 가능하면 왼팔을 뻗어 오른발 앞쪽이나 엄지발가락을 감싸잡고 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 골반 바닥으로 나란히 내리고.', italics:true},
+  {t:'투 — 뒤에 짚은 손에 무게 실리지 않게 하고.', italics:true},
+  {t:'쓰리 — 양 어깨 나란히 맞춰봅니다.', italics:true},
+  {t:'오른손을 골반 옆에 먼저 내리고, 왼팔을 다시 천장으로 뻗었다가 어깨 옆으로 내리면서 어깨에 남은 긴장을 풀어줍니다. 양 무릎을 세워 양손으로 무릎 앞쪽을 잡고, 마시며 척추를 펴고, 내쉬며 이완합니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼 무릎 아래에서 왼손으로 오른발을 잡아 뒤꿈치를 왼쪽 대둔근 바깥쪽으로 붙이고, 오른 무릎은 척추 중앙과 맞춰줍니다. 오른손으로 왼발을 들어 오른 무릎 바깥쪽에 붙이고 고관절 정렬을 확인합니다. 왼손을 뒤로 뻗어 꼬리뼈에서 한 뼘 정도 뒤에 손끝이 뒤를 향하게 가볍게 내립니다. 오른팔을 위로 들어 귀옆으로 가져와 척추를 신전하며 깊숙한 근막까지 활성화합니다. 골반저에 반다하며 마시고, 내쉬면서 왼 무릎 바깥쪽으로 깊게 보내 손바닥으로 허벅지를 감싸봅니다. 안정적이면 척추 기저부에서부터 요추, 흉추, 마지막 경추 순으로 회전하여 턱을 왼 어깨끝으로 돌립니다. 편안하면 왼팔을 등 뒤로 보내 반대편 팔뚝을 잡아보고, 가능하면 오른팔을 뻗어 왼발 앞쪽이나 엄지발가락을 감싸잡고 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 골반 바닥 닿은 느낌을 확인하고.', italics:true},
+  {t:'투 — 어깨 솟아오르지 않게.', italics:true},
+  {t:'쓰리 — 내쉬는 숨에 좀 더 깊게 회전합니다.', italics:true},
+  {t:'왼손을 골반 옆에 먼저 내리고, 오른팔을 다시 천장으로 뻗었다가 어깨 옆으로 내리면서 어깨에 남은 긴장을 풀어줍니다. 단다아사나로 돌아옵니다.'},
+]},
+{num:'8', paras:[
+  {t:'단다아사나로 앉습니다. 양 무릎을 굽혀 양다리를 모으며 가슴 가깝게 가져옵니다. 양손으로 발 바깥쪽 족궁을 감싸 잡습니다. 골반저에 반다하며 다리를 모은 채 양발을 들어올리고, 서서히 무릎을 펴면서 천장을 향해 뻗어 올립니다. 무릎이 벌어지지 않도록 합니다. 중심이 안정적이면 코끝을 응시하고(나사그라 드리스티), 천천히 양다리를 좌우로 넓게 벌립니다. 고개를 들어 미간을 응시하고(브루마디야 드리스티), 눈을 감고 고요히 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 척추 기저부에서부터 정수리까지 길게 뻗고.', italics:true},
+  {t:'투 — 어깨 긴장을 내리고.', italics:true},
+  {t:'쓰리 — 몸의 중심을 느끼면서 호흡합니다.', italics:true},
+  {t:'천천히 눈을 뜨며 코끝을 응시하고 다리를 모아줍니다. 무릎을 굽히며 발을 바닥에 천천히 내립니다. 양팔로 정강이를 끌어안아 잠시 이완합니다.'},
+]},
+{num:'9', paras:[
+  {t:'배를 바닥에 대고 엎드립니다. 양팔은 몸통 옆에 차렷하고, 뒤꿈치를 모으며 발등, 손등, 이마를 바닥에 둡니다. 이때 꼬리뼈부터 정수리까지 척추 속 근육이 신전되는 감각을 알아차립니다. 양 팔꿈치를 구부려 몸통 옆에 붙이며 양손바닥을 가슴 옆 바닥에 가볍게 둡니다. 어깨는 살짝 들었다가 뒤쪽 아래로 낮춰 충분히 이완합니다. 이마를 다시 바닥에 내리고, 서서히 반다하며 뒤꿈치를 붙인 채 두 다리를 바닥에서 들어올립니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 어깨 긴장되지 않게 귀와 어깨 사이에 여유를 두고.', italics:true},
+  {t:'투 — 손바닥에 체중을 싣지 않습니다.', italics:true},
+  {t:'쓰리 — 정수리부터 뒤꿈치까지 바르게 뻗어냅니다.', italics:true},
+  {t:'천천히 두 다리를 바닥으로 내리고, 양팔을 위로 만세하듯 쭉 뻗어 팔다리를 길게, 척추를 늘려줍니다. 그대로 이완합니다.'},
+]},
+{num:'10', paras:[
+  {t:'팔 위로 뻗어 엎드린 자세에서 이어갑니다. 양발을 모아 발끝을 세워 족저근부터 전체 척추 기립근의 감각을 확인합니다. 흉곽을 살짝 들어 양팔을 어깨 옆으로 뻗어 손바닥을 내립니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른 무릎을 굽히고 오른팔을 뒤로 돌려 발목 앞쪽을 잡으며, 무릎이 어깨너비 이상 벌어지지 않도록 합니다. 반다하고 마시고, 길게 내쉬면서 천천히 들어올립니다. 자세가 안정적이면 다시 마시고, 내쉬는 호흡에 천천히 회전하여 오른 발끝이 왼 손끝에 닿을 만큼 깊게 보내줍니다. 왼발등을 길게 펴서 늘려 전방근막을 활성화시키고, 다시 반다하며 머리를 들어 턱끝을 오른 어깨끝으로 서서히 회전합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 왼 다리 발등까지 쭉 뻗어내고.', italics:true},
+  {t:'투 — 오른 무릎 벌어지지 않게 조여주고.', italics:true},
+  {t:'쓰리 — 활짝 열린 오른 어깨와 가슴을 느껴봅니다.', italics:true},
+  {t:'다시 반다하며 천천히 회전하여 돌아옵니다. 복부는 바닥으로 내려놓지 않습니다. 다시 한번 마시고 내쉬면서 왼 발끝을 세우고 위로 들었다가 내려놓습니다. 팔과 다리를 앞뒤로 길게 뻗고 척추를 신전합니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'양발을 다시 모아 발끝을 세워 족저근부터 척추 전체 기립근의 감각을 다시 한번 확인합니다. 흉곽을 살짝 들어 양팔을 어깨 옆으로 뻗어 손바닥을 바닥에 내려줍니다. 왼 무릎을 굽히고 왼팔을 뒤로 돌려 발목 앞쪽을 잡으며, 무릎이 어깨너비 이상 벌어지지 않도록 합니다. 반다하고 마시고, 내쉬는 호흡에 천천히 들어올려 자세를 만듭니다. 자세가 안정적이면 다시 마시고, 내쉬는 호흡에 천천히 회전하여 왼 발끝이 오른 손끝에 닿을 만큼 보내줍니다. 오른발등을 길게 펴서 전방근막을 활성화시키고, 다시 반다하며 머리를 들어 턱끝을 왼 어깨끝으로 천천히 회전합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 오른 발등을 길게 늘려주고.', italics:true},
+  {t:'투 — 가슴으로 충분히 숨이 들어갈 수 있게.', italics:true},
+  {t:'쓰리 — 목과 어깨 긴장되지 않게 호흡합니다.', italics:true},
+  {t:'반다하며 천천히 회전하여 돌아옵니다. 엉덩이가 떨어지지 않게, 활 모양을 그대로 유지합니다. 다시 한번 마시고 내쉬면서 오른 발끝을 세워 위로 들었다가 내려옵니다. 팔과 다리를 앞뒤로 길게 뻗고 척추를 신전합니다.'},
+]},
+{num:'11', paras:[
+  {t:'엎드려서 팔과 다리를 길게 뻗어 척추를 신전합니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'왼쪽 모로 길게 돌아누우며 반다하고, 오른손을 가슴 앞 바닥에 가볍게 내립니다. 왼팔 팔꿈치를 굽혀 손바닥으로 귀 뒤쪽 뒤통수를 넓게 감싸 잡습니다. 이때 몸통 측면을 지나 하지 전체 측면까지 바르게 바닥에 뻗습니다. 천천히 오른 무릎을 접어 뒤꿈치를 골반 앞으로 가져오고, 오른손 두 번째, 세 번째 손가락으로 엄지발가락을 잡습니다. 불안정하면 왼 무릎을 뒤로 굽혀 바닥을 지지합니다. 골반저에 반다하고 오른 다리를 천장을 향해 수직으로 천천히 뻗어 올립니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 바닥 닿은 측면을 바르게 정렬하고.', italics:true},
+  {t:'투 — 오른 고관절부터 발바닥까지 길게 뻗어보고.', italics:true},
+  {t:'쓰리 — 호흡에 따라 일어나는 감각을 느껴봅니다.', italics:true},
+  {t:'발가락 잡은 채 천천히 오른 무릎을 굽혀 뒤꿈치를 골반쪽으로 가져옵니다. 배를 바닥으로 엎드려 몸을 길게 늘려줍니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'오른쪽 모로 길게 돌아누우며 반다하고, 왼손을 가슴 앞 바닥에 가볍게 내립니다. 오른팔 팔꿈치를 굽혀 손바닥으로 귀 뒤쪽 뒤통수를 넓게 감싸 잡습니다. 몸통 측면을 지나 하지 전체 측면까지 바르게 바닥에 뻗습니다. 천천히 왼 무릎을 접어 뒤꿈치를 골반 앞으로 가져오고, 왼손 두 번째, 세 번째 손가락으로 엄지발가락을 잡습니다. 불안정하면 오른 무릎을 뒤로 굽혀 바닥을 지지합니다. 골반저에 반다하고 왼 다리를 천장을 향해 수직으로 천천히 뻗어 올립니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 엉덩이 빠지지 않게 균형을 잡고.', italics:true},
+  {t:'투 — 몸의 중심을 느껴보고.', italics:true},
+  {t:'쓰리 — 고요하고 깊게 호흡합니다.', italics:true},
+  {t:'발가락 잡은 채 천천히 왼 무릎을 굽혀 뒤꿈치를 골반쪽으로 가져옵니다.'},
+  {t:'등을 대고 누워서 양 무릎을 굽혀 가슴쪽으로 지그시 당겨, 척추 및 둔근을 이완시켜 줍니다.'},
+]},
+{num:'12', paras:[
+  {t:'등을 대고 바르게 눕습니다. 다리를 모으고, 양팔은 몸통 옆에, 손바닥은 골반 옆 바닥에 내립니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른 무릎을 굽혀 오른손으로 발 바깥쪽 족궁을 감싸잡습니다. 왼손바닥으로 왼 허벅지를 지그시 누르며 뻗은 왼다리와 골반의 정렬을 확인합니다. 반다하며 오른 무릎을 서서히 뻗습니다. 이때 왼다리 뒷면이 지면에서 들리지 않도록 합니다. 골반저에 반다하고 마시고, 내쉬면서 상체를 서서히 들어올려 양손으로 오른 뒤꿈치를 감싸 잡으며 이마를 정강이에, 양 팔꿈치와 팔뚝도 정강이에 붙이고 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 왼다리를 지긋이 뻗어 누르고.', italics:true},
+  {t:'투 — 왼다리 뒷면이 바닥에서 뜨지 않게.', italics:true},
+  {t:'쓰리 — 복부를 지긋이 당깁니다.', italics:true},
+  {t:'천천히 머리를 바닥으로 내리고, 양손을 풀어 골반 옆 바닥에 내리며, 오른다리를 지면과 90도로 쭉 뻗어 천천히 내려, 바르게 누워 전신의 정렬을 다시 확인해 맞춥니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼 무릎을 굽혀 왼손으로 발 바깥쪽 족궁을 넓게 감쌉니다. 오른손바닥으로 오른 허벅지를 지그시 누르며 뻗은 오른다리와 골반의 정렬을 확인합니다. 반다하며 왼 무릎을 서서히 뻗습니다. 이때 오른다리 뒷면이 지면에서 들리지 않도록 유지합니다. 골반저에 반다하고 마시고, 내쉬면서 상체를 서서히 들어올려 양손으로 왼 뒤꿈치를 감싸 잡으며 이마를 정강이 가깝게, 팔꿈치와 팔뚝으로 정강이를 감싸듯 붙이고 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 오른다리가 쓰러지지 않게 잘 뻗어주고.', italics:true},
+  {t:'투 — 어깨는 긴장되지 않게 내려주고.', italics:true},
+  {t:'쓰리 — 깊게 호흡을 이어갑니다.', italics:true},
+  {t:'천천히 머리를 먼저 바닥으로 내리고, 양손을 풀어 골반 옆 바닥에 내리며, 왼다리를 지면과 90도로 길게 뻗어 천천히 내려 바르게 눕습니다.'},
+]},
+{num:'13', paras:[
+  {t:'누워서 다리를 모으고, 양팔은 몸통 옆에, 손바닥은 허벅지 옆 바닥에 내립니다. 반다하고 천천히 두 다리를 90도까지 천장을 향해 들어올립니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른발을 왼 고관절 깊숙이 가져오고, 왼발을 가져와 파드마를 먼저 만들어줍니다. 양손으로 무릎 바깥쪽을 감싸 잡아 마시고, 내쉬면서 무릎을 가볍게 가슴 쪽으로 당겨 둔근부터 정수리까지 척추를 바닥에 바르게 정렬합니다. 양손을 풀어 무릎을 내리며 엉덩이, 허벅지, 무릎이 바닥과 가까워지게 합니다. 끝까지 안 내려가도 괜찮습니다. 양손을 머리 위로 길게 만세하듯 뻗어 척추 상부를 늘리고, 팔꿈치를 구부려 손끝이 어깨 방향으로 손바닥을 내려줍니다. 양 팔꿈치는 어깨너비를 유지합니다. 골반저에 반다하며 손바닥으로 밀어 천천히 머리를 들어 경추 마디마디 뒤로 열면서 정수리를 가볍게 바닥에 닿게 하고, 양팔을 길게 천장을 향해 돌려 내립니다. 두 번째, 세 번째 손가락으로 엄지발가락을 잡아봅니다. 무릎이 약간 들리더라도 괜찮습니다. 흉곽을 더욱 확장하고 깊게 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 무릎을 바닥으로 지긋이 내리고.', italics:true},
+  {t:'투 — 횡격막의 움직임을 느껴보고.', italics:true},
+  {t:'쓰리 — 열린 가슴으로 깊게 호흡합니다.', italics:true},
+  {t:'※ 이 다음 "다리를 풀어 90도로 뻗어올리는" 동작은 선생님이 실연 중 "KY 공식 대본에는 없지만 제가 넣어서 해드리는 것"이라고 직접 밝히신 개인 추가 동작입니다 — 참고만 해주세요.'},
+  {t:'다시 양손을 머리 위로 길게 뻗어, 손바닥으로 어깨 아래를 지지해서 천천히 정수리를 들어 뒤통수, 뒷목, 어깨 순으로 바닥에 내립니다. 다리도 풀어 90도로 다시 뻗어올립니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼다리를 오른 고관절 깊숙이 가져오고, 오른발을 가져와 파드마를 반대쪽으로 만듭니다. 양손으로 무릎 바깥쪽을 감싸 잡아 마시고, 내쉬며 무릎을 가슴 쪽으로 당겨 둔근부터 정수리까지 척추를 바닥에 바르게 정렬합니다. 양손을 풀어 무릎을 내리며 엉덩이, 허벅지가 바닥과 가까워지게 합니다. 양손을 머리 위로 들어, 팔꿈치를 구부려 손끝이 어깨 방향으로 손바닥을 내리고, 팔꿈치는 어깨너비를 유지합니다. 골반저에 반다하고 천천히 손바닥으로 밀어 머리를 들어올려 경추 마디마디 뒤로 열면서 정수리를 가볍게 바닥에 닿게 하고, 팔을 길게 천장을 향해 돌려 내려 두 번째, 세 번째 손가락으로 엄지발가락을 잡습니다. 흉곽을 더욱 확장하고, 무릎을 지긋이 내리며 깊게 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 좌우 무릎, 골반을 나란하게.', italics:true},
+  {t:'투 — 가슴을 위로 쭉 열어 올려주고.', italics:true},
+  {t:'쓰리 — 깊은 호흡을 느껴봅니다.', italics:true},
+  {t:'다시 양손을 머리 위로 길게 뻗어 손바닥으로 어깨를 지지하고, 천천히 정수리를 들어 뒤통수, 뒷목, 어깨 순으로 바닥에 내립니다. 양손을 돌려 아래로 내리고, 다리도 풀어 90도로 길게 뻗어올립니다. 이제 다리를 아래로 천천히 내려 바르게 눕습니다.'},
+]},
+{num:'14', paras:[
+  {t:'바르게 누워 다리를 모으고, 양팔은 몸통 옆에, 손바닥은 허벅지 옆 바닥에 내립니다.'},
+  {t:'천천히 양다리를 90도가 되도록 들어올립니다. 골반저에 반다하며 다리를 뻗은 채 최대한 몸통 쪽으로 밀착시키고, 반동 없이 천천히 머리 뒤로 넘기면서 꼬리뼈부터 흉추까지 척추를 하나하나 지면에서 들어올립니다. 발끝이 머리 뒤 바닥에 닿으면, 발끝을 머리 쪽으로 당기며 바닥을 지지합니다. 호흡이 안정되면 팔꿈치를 굽혀 손바닥으로 등을 지지하여 몸통이 지면과 수직이 되도록 조절합니다. 안정적이면 양손을 깍지 끼고 길게 바닥으로 내려 팔을 뻗어 지면에 댑니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양팔을 지긋이 바닥으로 뻗고.', italics:true},
+  {t:'투 — 발끝 바닥에 발바닥 근막의 신전을 느껴보고.', italics:true},
+  {t:'쓰리 — 뒤꿈치부터 엉덩이까지 뒷면을 길게 느껴봅니다.', italics:true},
+  {t:'이어서 비파리타 카라니 무드라로 연결하겠습니다.'},
+]},
+{num:'14', mudra:true, paras:[
+  {t:'할라 아사나에서 바로 이어갑니다. 깍지를 풀고 팔꿈치를 굽혀 양손으로 아래 등을 지지합니다. 골반저에 반다하고 두 다리를 천천히 수직으로 들어올립니다. 천천히 척추를 45도 각도로 낮추며 손바닥을 넓게 천골에 대고 받쳐줍니다. 혓바닥을 가볍게 입천장에 붙여 지흐바 반다하고 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 체중이 손목이나 팔꿈치에 과하게 실리지 않도록.', italics:true},
+  {t:'투 — 입안에 타액이 고이는 걸 느끼며.', italics:true},
+  {t:'쓰리 — 자연스럽고 고요하게 호흡합니다.', italics:true},
+  {t:'다시 발끝을 머리 뒤 바닥에 살짝 내려 가볍게 할라아사나로 돌아오고, 양손을 풀어 손바닥을 바닥에 내리고 골반저에 반다하여 반동 없이 천천히 척추 전체를 바닥에 마디마디 내려줍니다. 골반이 바닥에 닿으면 다리를 90도에서 잠시 유지하고, 천천히 양다리를 아래로 내려놓습니다. 경추를 좌우로 천천히 움직이며 풀어주고, 발을 살짝 벌려 사바아사나로 잠시 이완합니다. 손바닥을 짚고 천천히 일어나 단다아사나로 바르게 앉습니다.'},
+]},
+{num:'15', paras:[
+  {t:'단다아사나로 바르게 앉습니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른발을 왼쪽 고관절 깊숙이 당겨오고, 왼발을 반대쪽으로 깊숙이 당겨옵니다. 뒤꿈치는 하복부 가깝게, 발바닥은 천장을 향하여 연꽃잎 형상이 되도록 합니다. 양 골반 정렬을 맞추고 양 무릎이 바닥에서 뜨지 않도록 조절합니다. 양손바닥을 무릎 위에 가볍게 놓고, 편안하게 눈을 감고 자연스러운 호흡을 이어갑니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 골반의 무게를 나란하게.', italics:true},
+  {t:'투 — 골반저부터 척추 전체의 바른 정렬을 느껴보고.', italics:true},
+  {t:'쓰리 — 자연스러운 호흡을 이어갑니다.', italics:true},
+  {t:'천천히 다리를 풀어 단다아사나로 바르게 앉습니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼발을 오른쪽 고관절 깊숙이 당겨오고, 오른발을 반대쪽으로 깊숙이 당겨옵니다. 뒤꿈치는 아랫배 가깝게, 발바닥은 천장을 향하여 연꽃잎 모양으로 활짝 펼칩니다. 양 골반 정렬을 먼저 확인하고, 무릎이 바닥에서 뜨지 않게 지그시 내리며 조절합니다. 양손바닥을 무릎 위에 가볍게 놓고, 다시 눈을 감고 자연스러운 호흡을 이어갑니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 무릎이 뜨지 않게 지그시 내리고.', italics:true},
+  {t:'투 — 척추를 길게 세우고.', italics:true},
+  {t:'쓰리 — 드나드는 호흡에 집중합니다.', italics:true},
+  {t:'천천히 다리를 풀어 단다아사나로 바르게 앉습니다.'},
+]},
+{num:'16', paras:[
+  {t:'단다아사나로 바르게 앉습니다.'},
+  {t:'오른쪽부터 시작하겠습니다.', bold:true},
+  {t:'오른발을 먼저 가져오고, 왼발을 당겨와 파드마아사나로 앉습니다. 골반저에 반다하며 양 무릎을 살짝 들어올려 종아리와 허벅지 사이로 양팔을 넣고, 가능하면 팔꿈치까지 깊게 밀어 넣습니다. 손바닥을 충분히 펴서 양손 엄지끼리 가깝게 두고, 수탉의 발처럼 넓게 펴서 바닥에 놓습니다. 골반저에 반다하고 숨을 마시고, 내쉴 때 엉덩이를 들어올려 손바닥으로 균형을 잡습니다. 고개 들어 시선은 전방을 응시하고 자연스럽게 호흡합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 손바닥을 밀어내고.', italics:true},
+  {t:'투 — 복부를 끌어당기고.', italics:true},
+  {t:'쓰리 — 마지막 호흡을 이어갑니다.', italics:true},
+  {t:'다시 바닥에 내리고, 팔을 빼고 다리를 풀어 단다아사나로 바르게 앉습니다.'},
+  {t:'다시 정렬하고, 왼쪽으로 진행하겠습니다.', bold:true},
+  {t:'왼발을 먼저 가져오고, 오른발을 당겨와 파드마아사나로 앉습니다. 골반저에 반다하며 양 무릎을 살짝 들어올려 종아리와 허벅지 사이로 양팔을 넣고, 가능하면 팔꿈치까지 깊게 밀어 넣습니다. 손바닥을 충분히 펴서 바닥에 놓습니다. 골반저에 반다하고 숨을 마시고, 내쉴 때 엉덩이를 들어올려 손바닥으로 균형을 잡습니다. 고개 들어 시선은 전방을 응시합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 손바닥 전체를 밀어내고.', italics:true},
+  {t:'투 — 무릎을 끌어올릴 수 있으면 끌어올리고.', italics:true},
+  {t:'쓰리 — 시선은 정면입니다.', italics:true},
+  {t:'천천히 엉덩이를 내리고, 팔을 빼고 다리를 풀어 단다아사나로 바로 돌아옵니다. 이 자세는 균형 자세로 취급하여 핸즈온은 하지 않습니다.'},
+]},
+{num:'17', paras:[
+  {t:'단다아사나로 바르게 앉습니다. 오른발을 먼저 가져오고, 왼발을 당겨와 파드마아사나로 앉습니다. 흉곽 전면을 충분히 확장하고 어깨를 뒤로 이완하며 양손을 뒤로 보냅니다. 양손으로 양발을 감싸 쥐거나, 혹은 두 번째 세 번째 손가락으로 엄지발가락을 잡고 자연호흡 3회 합니다.'},
+  {t:'이어서 요가 무드라로 연결하겠습니다.'},
+]},
+{num:'17', mudra:true, paras:[
+  {t:'요가 무드라로 연결하겠습니다. 골반저에 반다한 채로, 깊게 마시며 흉곽을 열어 천장을 바라보고, 길게 내쉬면서 앞으로 천천히 숙입니다. 이마 혹은 턱끝을 바닥에 대고 고요히 호흡 3회 합니다.'},
+  {t:'호흡을 세 번 이어가겠습니다.', italics:true},
+  {t:'원 — 양 골반을 바닥으로 지긋이 내리고.', italics:true},
+  {t:'투 — 양쪽 어깨를 나란히 수평으로.', italics:true},
+  {t:'쓰리 — 정교하고 고요한 호흡을 합니다.', italics:true},
+  {t:'반다하면서 천천히 상체를 세워 돌아와, 양팔을 풀고 손바닥을 무릎 위에 가볍게 올립니다. 잠시 미세한 에너지의 흐름을 느껴봅니다.'},
+  {t:'양 다리를 풀어 단다아사나로 돌아옵니다. 반대쪽은 진행하지 않습니다.'},
+]},
+{num:'18', paras:[
+  {t:'파드마 아사나로 바르게 앉습니다. 싯칼리 호흡법을 먼저 설명드리겠습니다. 입술은 살짝 열되 치아를 붙이고, 혓바닥은 안에서 가볍게 이완합니다. 숨을 깊이 마실 때 치아 사이로 공기가 빠르게 지나며 싯 소리가 나도록 합니다. 살짝 호흡을 멈추며 입을 다물고 정교하게 코로 길게 내쉽니다. 프라나야마를 시행하는 동안 어깨나 흉곽에 긴장이 상승하지 않도록 주의합니다. 구강 및 비강 안에 형성되는 차분한 에너지를 관찰합니다.'},
+  {t:'먼저 한번 보여드린 후 함께 진행하도록 하겠습니다. 이제 본인의 폐활량에 맞추어 싯칼리 호흡 세 번 시행하겠습니다.'},
+  {t:'입술 열어 마시며 싯, 입 다물고 코로 길게 내쉽니다. 다시 한번, 입술 열어 마시며 싯, 입 다물고 코로 길게 내쉽니다. 마지막으로, 입술 열어 마시며 싯, 입 다물고 코로 고요하고 길게 내쉽니다.'},
+  {t:'호흡을 유지하며', italics:true},
+  {t:'원 — 입술 및 입을 조절하는 리듬이 본인 폐활량에 맞추어 서두르지 않고 자연스러워야 합니다.', italics:true},
+  {t:'투, 쓰리 — 안정적인 에너지를 관찰하며 몰입합니다.', italics:true},
+  {t:'이제 양 다리 풀어 단다아사나로 돌아옵니다. 반대쪽은 진행하지 않습니다.'},
+]},
+{num:'19', paras:[
+  {t:'파드마아사나로 바르게 앉습니다. 눈을 감고 감은 눈을 통해 코끝을 응시합니다. 이때 코끝에서 비강까지 공기의 흐름을 관찰합니다. 코로 숨을 들이쉬고 내쉴 때 비강에서 허밍소리를 내며 진동을 만듭니다. 이때 마치 꿀벌이 날아왔다가 멀어지듯, 자연히 소리가 잦아들도록 하여 기도나 목에 긴장이 올라오지 않도록 합니다.'},
+  {t:'먼저 보여드리고 함께 진행하도록 하겠습니다. 본인의 폐활량에 맞추어 세 번 반복하며 더욱 정교한 소리를 유도해 보겠습니다. 비강에서 뇌 기저부로 잔여 진동을 느끼며 몰입해봅니다.'},
+  {t:'코로 마시고 내쉬면서 음. 다시 한번, 깊게 마시고 내쉬면서 음. 마지막으로, 마시고 내쉬면서 음. 잔여 진동이 사라질 때까지 끝까지 집중하며 느껴봅니다.'},
+  {t:'이어서 샨무키 무드라로 연결하겠습니다.'},
+]},
+{num:'19', mudra:true, paras:[
+  {t:'브라마리 호흡을 샨무키 무드라를 적용해서 해 보겠습니다. 양팔을 어깨 높이로 들어 팔꿈치를 굽히고 양손을 얼굴 쪽으로 가져갑니다. 이때 견갑골과 어깨가 상승하지 않고 흉곽에 긴장이 일어나지 않도록 합니다. 양손 엄지로 귀를, 검지로 눈꺼풀을 살짝 막습니다. 네 번째, 다섯 번째 손가락은 위아래 입을 막습니다. 가운데, 세 번째 손가락은 호흡하며 콧구멍을 막았다 열었다 합니다.'},
+  {t:'샨무키 무드라를 적용하고, 세 번째 손가락을 굽혀 코를 열어 숨을 마시고, 코로 내쉴 때 비강을 진동시키며 허밍소리를 냅니다. 허밍소리가 끝나면 잠시 호흡했다가 편안해지면 가운데 손가락으로 코를 막고 오감을 차단해봅니다.'},
+  {t:'먼저 보여드리고 함께 진행하도록 하겠습니다. 본인의 폐활량에 맞추어 호흡 세 번 하겠습니다.'},
+  {t:'코를 연 상태로 숨을 마시고 내쉬면서 음. 다시 한번, 코를 열어 숨 깊게 마시고 내쉬면서 음. 마지막으로, 코를 열어 숨 깊게 마시고 내쉬면서 음. 호흡이 편안해지면 코를 막고 내면의 소리에 몰입합니다.'},
+  {t:'천천히 손을 내리고 다리를 풀어 단다아사나로 돌아옵니다. 반대쪽은 진행하지 않습니다.'},
+]},
+{num:'20', paras:[
+  {t:'파드마 아사나로 바르게 앉습니다. 눈을 감고 코끝을 응시합니다. 고요히 호흡하며 코끝에서 콧구멍, 비강, 기도, 허파 깊숙이 흐르는 공기의 흐름을 있는 그대로 관찰합니다. 호흡이 잘 느껴지면 기도 중앙에 집중하고 성대 격막을 가볍게 수축합니다. 이를 유지한 채 숨을 들이쉬고 내쉴 때마다 고요하고 일정한 공기입자 스치는 소리를 만듭니다. 이때 소리는 아기가 잠을 자며 코를 골 듯 고요해야 하며 일정하게 일어나야 합니다. 필요하지 않은 긴장이 성대나 어깨, 흉곽 등에 일어나면 소리가 거칠어지므로 주의합니다.'},
+  {t:'먼저 보여드린 후 함께 진행하겠습니다. 본인의 폐활량에 맞게 연속으로 세 번 시행하겠습니다.'},
+  {t:'이제 그대로 성대격막을 이완하고 자연스럽게 호흡하며 미세한 생명에너지의 흐름을 관찰해봅니다.'},
+  {t:'수고하셨습니다. 나마스떼!'},
+]},
+];
+
+/* 긴 문장을 "~하고," "~하며," 처럼 쉼표·마침표 단위로 줄바꿈해서 시처럼 읽히게 만든다 */
+function poemBreak(text){
+  return text
+    .replace(/,\s*/g, ',\n')
+    .replace(/\.\s+/g, '.\n')
+    .replace(/\n{2,}/g, '\n');
+}
+/* 세그먼트 만들기: 소제목 없이, 오른쪽 진행 / 호흡 / 왼쪽 진행 / 호흡 — 실선 구분만으로 덩어리를 나눈다.
+   좌우 구분이 없는 자세는 통째로 한 덩어리(단, 호흡 카운트가 있으면 그 앞뒤로는 나뉜다). */
+function groupMainSegs(paras){
+  const groups = [];
+  let current = null;
+  let pendingIntro = [];
+  function flushIntroAsOwnGroup(){
+    if(pendingIntro.length){
+      groups.push({ lines: pendingIntro });
+      pendingIntro = [];
+    }
+  }
+  paras.forEach((p) => {
+    if(p.bold){
+      // 오른쪽/왼쪽 시작 멘트는 그 앞의 설명(있다면)과 한 덩어리로 합친다
+      current = { lines: [] };
+      if(pendingIntro.length){ current.lines.push.apply(current.lines, pendingIntro); pendingIntro = []; }
+      current.lines.push(p.t);
+      groups.push(current);
+      return;
+    }
+    if(p.italics){
+      // 좌우 구분이 없어도 호흡 카운트는 그 앞의 설명과는 반드시 분리한다
+      if(!current || !current.isBreath){
+        flushIntroAsOwnGroup();
+        current = { lines: [], isBreath: true };
+        groups.push(current);
+      }
+      current.lines.push(p.t);
+      return;
+    }
+    if(!current){ pendingIntro.push(p.t); return; }
+    current.lines.push(p.t);
+  });
+  if(pendingIntro.length){ groups.push({ lines: pendingIntro }); }
+  if(!groups.length){ groups.push({ lines: [''] }); }
+  return groups.map(g => ({ label:'', cls:'', text: poemBreak(g.lines.join('\n')) }));
+}
+/* ---- 통합 대본 목록: 수리야 나마스카라 A·B + 코리아 요가 얼라이언스 3~20 ---- */
+/* 수리야 나마스카라 A/B는 그 자체로 "하나의 동작(시퀀스)"이고, 구령("에캄 인헤일 / 드웨 엑세일 / ...")은
+   줄바꿈만 해서 통으로 쭉 이어지는 게 기본값 — 스텝마다 소제목을 달지 않는다.
+   5회 호흡을 유지하는 자세(아도 무카 스바나사나)의 5카운트 멘트만 실선으로 나뉜 별도 덩어리로 수정 가능하게 한다. */
+function buildSuryaSegs(seq){
+  const segs = [];
+  let callLines = [];
+  seq.forEach(item => {
+    const breathWord = item.breath === 'Inhale' ? '인헤일' : '엑세일';
+    callLines.push(item.kor + ' ' + breathWord + '.');
+    if(item.note && item.note.indexOf('5회') > -1){
+      segs.push({ label:'', cls:'', text: callLines.join('\n') });
+      callLines = [];
+      segs.push({ label:'', cls:'', text: [
+        '호흡을 다섯 번 이어가겠습니다.',
+        '원 — 양 발 사이 간격은 주먹 두 개 정도.',
+        '투 — 시선은 양발 사이 멀리 뒤쪽으로.',
+        '쓰리 — 손바닥은 매트 바닥에 밀착.',
+        '포 — 어깨와 귀 사이가 멀어지게.',
+        '파이브 — 무게중심은 다리 뒤쪽으로.'
+      ].join('\n') });
+    }
+  });
+  if(callLines.length){ segs.push({ label:'', cls:'', text: callLines.join('\n') }); }
+  return segs;
+}
+const scriptPoses = (function(){
+  const list = [];
+  list.push({ id:'A', group:'수리야 나마스카라', title:'1. 수리야 나마스카라 A',
+    srcType:'surya', src:{ seq:seqA, label:'A' }, segs: buildSuryaSegs(seqA) });
+  list.push({ id:'B', group:'수리야 나마스카라', title:'2. 수리야 나마스카라 B',
+    srcType:'surya', src:{ seq:seqB, label:'B' }, segs: buildSuryaSegs(seqB) });
+  flatMain.forEach((entry, i) => {
+    const numLabel = entry.cont ? ('↳ '+entry.num+'번 이어서') : (entry.num+'번');
+    list.push({ id:'M'+i, group:'코리아 요가 얼라이언스 시퀀스 (3~20)', title: numLabel+' · '+entry.kor,
+      srcType:'main', src:entry, segs: groupMainSegs(teachingScript[i] ? teachingScript[i].paras : [{t:''}]) });
+  });
+  return list;
+})();
+function findScriptPose(id){ return scriptPoses.find(p => p.id === id); }
+
+/* localStorage 기반 개인 수정본 저장 (기기·브라우저별로 저장되며, 다른 사람과는 공유되지 않음) */
+const SCRIPT_EDIT_KEY = 'kyat300_script_edits_v2';
+function loadScriptEdits(){
+  try{ return JSON.parse(localStorage.getItem(SCRIPT_EDIT_KEY) || '{}'); }catch(e){ return {}; }
+}
+function saveScriptEdits(obj){
+  try{ localStorage.setItem(SCRIPT_EDIT_KEY, JSON.stringify(obj)); }catch(e){}
+}
+function scriptEditKey(id, segIdx){ return id + '_' + segIdx; }
+function getScriptText(id, segIdx){
+  const edits = loadScriptEdits();
+  const k = scriptEditKey(id, segIdx);
+  if(edits.hasOwnProperty(k)) return edits[k];
+  const pose = findScriptPose(id);
+  return pose ? pose.segs[segIdx].text : '';
+}
+function isScriptEdited(id, segIdx){
+  const edits = loadScriptEdits();
+  return edits.hasOwnProperty(scriptEditKey(id, segIdx));
+}
+function poseHasAnyEdit(id){
+  const edits = loadScriptEdits();
+  return Object.keys(edits).some(k => k.indexOf(id + '_') === 0);
+}
+function onScriptSegInput(id, segIdx, textarea){
+  autoGrowTextarea(textarea);
+  const edits = loadScriptEdits();
+  const k = scriptEditKey(id, segIdx);
+  const pose = findScriptPose(id);
+  const original = pose.segs[segIdx].text;
+  if(textarea.value === original){ delete edits[k]; }
+  else { edits[k] = textarea.value; }
+  saveScriptEdits(edits);
+  textarea.classList.toggle('edited', textarea.value !== original);
+  const undoBtn = textarea.closest('.script-seg').querySelector('.script-seg-undo');
+  if(undoBtn) undoBtn.disabled = (textarea.value === original);
+  updateScriptEditedFlag(id);
+}
+function resetScriptSeg(id, segIdx){
+  const edits = loadScriptEdits();
+  delete edits[scriptEditKey(id, segIdx)];
+  saveScriptEdits(edits);
+  renderScriptView(id);
+}
+function resetScriptPose(id){
+  if(!confirm('이 자세의 수정 내용을 모두 원본으로 되돌릴까요?')) return;
+  const edits = loadScriptEdits();
+  Object.keys(edits).forEach(k => { if(k.indexOf(id + '_') === 0) delete edits[k]; });
+  saveScriptEdits(edits);
+  renderScriptView(id);
+  updateScriptEditedFlag(id);
+}
+function updateScriptEditedFlag(id){
+  const flag = document.getElementById('script-flag-' + id);
+  if(flag) flag.style.display = poseHasAnyEdit(id) ? 'inline' : 'none';
+}
+function autoGrowTextarea(el){
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 2) + 'px';
+}
+
+/* ---- 티칭 멘트 대본: 전체 화면 편집 페이지 ---- */
+let currentScriptId = null;
+let labScrollY = 0;
+function openScriptView(id){
+  currentScriptId = id;
+  labScrollY = window.scrollY; // 대본 목록에서 어디를 보고 있었는지 기억해뒀다가, 뒤로가면 그 자리로 돌아간다
+  const pose = findScriptPose(id);
+  document.getElementById('scriptViewTitle').textContent = pose.title;
+  document.getElementById('view-scriptlab').classList.remove('active');
+  document.getElementById('view-script').classList.add('active');
+  renderScriptView(id);
+  window.scrollTo(0, 0);
+}
+function closeScriptView(){
+  document.getElementById('view-script').classList.remove('active');
+  document.getElementById('view-scriptlab').classList.add('active');
+  if(currentScriptId !== null){
+    updateScriptEditedFlag(currentScriptId);
+    renderLabPractice();
+  }
+  currentScriptId = null;
+  window.scrollTo(0, labScrollY);
+}
+function renderScriptView(id){
+  const body = document.getElementById('scriptViewBody');
+  if(!body) return;
+  const pose = findScriptPose(id);
+  const segs = pose.segs;
+  let html = '';
+  segs.forEach((seg, si) => {
+    const edited = isScriptEdited(id, si);
+    const val = getScriptText(id, si);
+    html +=
+      '<div class="script-seg ' + seg.cls + '">' +
+        '<div class="script-seg-head">' +
+          '<span class="script-seg-label">' + (seg.label || '') + '</span>' +
+          '<div class="script-seg-actions">' +
+            '<button class="script-seg-cancel-btn" style="display:none;" title="취소" onclick="cancelSegEdit(\'' + id + '\',' + si + ',this)">✕ 취소</button>' +
+            '<button class="script-seg-edit-btn" title="수정하기" onclick="toggleSegEdit(\'' + id + '\',' + si + ',this)">✏️</button>' +
+            '<button class="script-seg-undo" ' + (edited ? '' : 'disabled') + ' onclick="resetScriptSeg(\'' + id + '\',' + si + ')">↺ 원본으로</button>' +
+          '</div>' +
+        '</div>' +
+        '<textarea class="script-input' + (edited ? ' edited' : '') + '" rows="1" readonly ' +
+          'onfocus="this.scrollIntoView({behavior:\'smooth\',block:\'center\'})" ' +
+          'oninput="onScriptSegInput(\'' + id + '\',' + si + ',this)">' +
+          escapeHtml(val) +
+        '</textarea>' +
+      '</div>';
+  });
+  body.innerHTML = html;
+  body.querySelectorAll('textarea').forEach(autoGrowTextarea);
+}
+function toggleSegEdit(id, segIdx, btn){
+  const seg = btn.closest('.script-seg');
+  const textarea = seg.querySelector('textarea');
+  const cancelBtn = seg.querySelector('.script-seg-cancel-btn');
+  const locked = textarea.hasAttribute('readonly');
+  if(locked){
+    textarea.dataset.before = textarea.value;
+    textarea.removeAttribute('readonly');
+    btn.classList.add('unlocked');
+    btn.textContent = '🔒';
+    btn.title = '잠그기';
+    if(cancelBtn) cancelBtn.style.display = 'inline-block';
+    textarea.focus();
+    const v = textarea.value; textarea.value=''; textarea.value=v; // 커서를 맨 끝으로
+    textarea.scrollTop = 0; // 수정창은 처음엔 맨 위부터 보이게 (내부 스크롤로 위아래 이동)
+    textarea.scrollIntoView({behavior:'smooth', block:'center'});
+  } else {
+    lockSeg(seg, btn, cancelBtn, textarea);
+  }
+}
+function lockSeg(seg, btn, cancelBtn, textarea){
+  textarea.setAttribute('readonly', 'readonly');
+  btn.classList.remove('unlocked');
+  btn.textContent = '✏️';
+  btn.title = '수정하기';
+  if(cancelBtn) cancelBtn.style.display = 'none';
+}
+function cancelSegEdit(id, segIdx, cancelBtn){
+  const seg = cancelBtn.closest('.script-seg');
+  const textarea = seg.querySelector('textarea');
+  const editBtn = seg.querySelector('.script-seg-edit-btn');
+  if(textarea.dataset.before !== undefined){
+    textarea.value = textarea.dataset.before;
+    autoGrowTextarea(textarea);
+    onScriptSegInput(id, segIdx, textarea); // 되돌린 값으로 저장 갱신
+  }
+  lockSeg(seg, editBtn, cancelBtn, textarea);
+}
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ---- 복사(백업) 기능 ---- */
+function copyText(text, btn, doneLabel){
+  function finish(ok){
+    if(!btn) return;
+    const orig = btn.dataset.orig || btn.textContent;
+    btn.dataset.orig = orig;
+    btn.textContent = ok ? (doneLabel || '✅ 복사됨') : '복사 실패';
+    if(btn.classList) btn.classList.toggle('copied', ok);
+    setTimeout(() => { btn.textContent = orig; if(btn.classList) btn.classList.remove('copied'); }, 1800);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(() => finish(true)).catch(() => fallbackCopy(text, finish));
+  } else {
+    fallbackCopy(text, finish);
+  }
+}
+function fallbackCopy(text, cb){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px'; ta.style.top = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    cb(ok);
+  }catch(e){ cb(false); }
+}
+function buildPoseScriptText(id){
+  const pose = findScriptPose(id);
+  const body = pose.segs.map((s, si) => getScriptText(id, si)).join('\n\n');
+  return pose.title + '\n' + body;
+}
+function copyPoseScript(id, btn){
+  copyText(buildPoseScriptText(id), btn, '✅ 복사됨');
+}
+function copyAllScripts(btn){
+  const all = scriptPoses.map(p => buildPoseScriptText(p.id)).join('\n\n');
+  copyText(all, btn, '✅ 복사됨');
+}
+
+/* ---- 대본 연습 모듈(랩) 진입/탭 ---- */
+function enterScriptLab(){
+  document.getElementById('view-home').classList.remove('active');
+  document.getElementById('view-scriptlab').classList.add('active');
+  renderLabEdit();
+  setLabTab('edit');
+}
+function exitScriptLab(){
+  stopQueue();
+  document.getElementById('view-scriptlab').classList.remove('active');
+  document.getElementById('view-home').classList.add('active');
+}
+function setLabTab(name){
+  document.querySelectorAll('#view-scriptlab .panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('lab-panel-'+name).classList.add('active');
+  document.querySelectorAll('#view-scriptlab .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.panel===name));
+  if(name === 'practice') renderLabPractice();
+  window.scrollTo(0, 0);
+}
+/* 기존 "이름 학습" 카드와 동일한 마크업 — 대본 연습에서도 같은 룩을 그대로 씀.
+   수리야 나마스카라 A/B는 하나의 동작(시퀀스)이므로 카드도 시퀀스 단위 1개로 표시 */
+function suryaSeqCardInner(src, num){
+  const seq = src.seq;
+  return (
+    '<div class="icon-badge">' + iconSVG(seq[0].asana) + '</div>' +
+    '<div style="flex:1;min-width:0;">' +
+      '<div class="learn-num">' + num + '.</div>' +
+      '<div class="learn-sanskrit">수리야 나마스카라 ' + src.label + '</div>' +
+      '<div class="learn-asana">' + seq.length + '개 동작 · 구령으로 진행</div>' +
+    '</div>'
+  );
+}
+function mainCardInner(entry){
+  const numLabel = entry.cont ? ('↳ ' + entry.num + '번 이어서') : (entry.num + '.');
+  return (
+    '<div class="icon-badge ' + entry.kind + '">' + iconSVGByKey(entry.icon) + '</div>' +
+    '<div style="flex:1;min-width:0;">' +
+      '<div class="learn-num">' + numLabel + '</div>' +
+      '<div class="learn-sanskrit">' + entry.kor + '</div>' +
+      '<div class="learn-asana">' + entry.meaning + '</div>' +
+      '<div class="learn-breakdown">' + entry.breakdown + '</div>' +
+    '</div>'
+  );
+}
+function renderLabEdit(){
+  const list = document.getElementById('labEditList');
+  list.innerHTML = '';
+  scriptPoses.forEach((pose, idx) => {
+    const edited = poseHasAnyEdit(pose.id);
+    const inner = pose.srcType === 'surya' ? suryaSeqCardInner(pose.src, idx + 1) : mainCardInner(pose.src);
+    const card = document.createElement('button');
+    card.className = 'script-pose-card';
+    card.onclick = () => openScriptView(pose.id);
+    card.innerHTML =
+      inner +
+      '<div class="script-pose-card-side">' +
+        '<span class="script-edited-flag" id="script-flag-' + pose.id + '" style="display:' + (edited ? 'inline' : 'none') + '">수정됨</span>' +
+        '<span class="car">›</span>' +
+      '</div>';
+    list.appendChild(card);
+  });
+}
+let labPracticeFilterRecordedOnly = false;
+function toggleLabPracticeFilter(){
+  labPracticeFilterRecordedOnly = !labPracticeFilterRecordedOnly;
+  renderLabPractice();
+}
+function renderLabPractice(){
+  const list = document.getElementById('labPracticeList');
+  if(!list) return;
+  const filterBtn = document.getElementById('labFilterBtn');
+  if(filterBtn) filterBtn.classList.toggle('active', labPracticeFilterRecordedOnly);
+  list.innerHTML = '<div class="lab-cat-empty-note">불러오는 중…</div>';
+  const rows = [];
+  if(!micSupported() || !window.isSecureContext){
+    rows.push(
+      '<div class="lab-mic-warning">⚠️ 이 기기·브라우저에서는 마이크 녹음이 안 될 수 있어요. ' +
+      '휴대폰에 저장한 파일을 파일 앱에서 직접 열면(주소창이 file://로 시작) 브라우저 보안 정책 때문에 마이크 접근이 막히는 경우가 많아요. ' +
+      '안 되면 알려주세요.</div>'
+    );
+  }
+  (async () => {
+    let shown = 0;
+    for(const pose of scriptPoses){
+      const takes = await dbGetTakesForPose(pose.id);
+      if(labPracticeFilterRecordedOnly && !takes.length) continue;
+      shown++;
+      const preview = pose.segs.map((s, si) => getScriptText(pose.id, si)).join(' ').trim();
+      rows.push(renderPracticeCardHtml(pose, preview, takes));
+    }
+    if(labPracticeFilterRecordedOnly && !shown){
+      rows.push('<div class="lab-cat-empty-note">아직 녹음한 자세가 없어요.</div>');
+    }
+    list.innerHTML = rows.join('');
+  })();
+}
+function renderPracticeCardHtml(pose, preview, takes){
+  const previewHtml = preview
+    ? '<div class="lab-script-preview">' + escapeHtml(preview) + '</div>'
+    : '<div class="lab-script-preview empty">아직 작성된 대본이 없어요. "대본 수정" 탭에서 먼저 작성해보세요.</div>';
+  let takesHtml = '';
+  if(takes.length){
+    const noneSelected = !takes.some(t => t.selected);
+    takesHtml = '<div class="rec-take-list">' + takes.map(t =>
+      '<div class="rec-take' + (t.selected ? ' selected' : '') + '">' +
+        '<input type="radio" name="take-radio-' + pose.id + '" ' + (t.selected ? 'checked' : '') + ' onchange="selectTake(' + t.id + ',\'' + pose.id + '\')" title="이어서 재생에 포함">' +
+        '<span class="rec-take-label">' + new Date(t.createdAt).toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) + '</span>' +
+        '<button onclick="playTakeStandalone(' + t.id + ')" title="재생">▶</button>' +
+        '<button class="rec-take-del" onclick="deleteTake(' + t.id + ',\'' + pose.id + '\')" title="삭제">🗑</button>' +
+      '</div>'
+    ).join('') +
+      '<div class="rec-take rec-take-exclude' + (noneSelected ? ' selected' : '') + '">' +
+        '<input type="radio" name="take-radio-' + pose.id + '" ' + (noneSelected ? 'checked' : '') + ' onchange="selectTake(null,\'' + pose.id + '\')" title="이어서 재생에서 제외">' +
+        '<span class="rec-take-label">이 자세는 재생에서 제외</span>' +
+      '</div>' +
+    '</div>';
+  }
+  return (
+    '<div class="lab-practice-card" id="practice-card-' + pose.id + '">' +
+      '<div class="lab-practice-title">' + escapeHtml(pose.title) + '</div>' +
+      previewHtml +
+      '<div class="rec-row">' +
+        '<button class="rec-btn" id="rec-btn-' + pose.id + '" onclick="toggleRecording(\'' + pose.id + '\')">🔴 녹음</button>' +
+        '<span class="rec-hint" id="rec-hint-' + pose.id + '">누르고 낭독한 뒤 다시 눌러 정지</span>' +
+      '</div>' +
+      takesHtml +
+    '</div>'
+  );
+}
+
+/* ---- IndexedDB: 녹음본 저장 (오디오는 용량이 커서 localStorage 대신 IndexedDB 사용) ---- */
+const AUDIO_DB_NAME = 'kyat300_audio_db';
+const AUDIO_STORE = 'takes';
+let audioDbPromise = null;
+function dbOpen(){
+  if(audioDbPromise) return audioDbPromise;
+  audioDbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(AUDIO_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(AUDIO_STORE)){
+        const store = db.createObjectStore(AUDIO_STORE, { keyPath:'id', autoIncrement:true });
+        store.createIndex('poseId', 'poseId', { unique:false });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return audioDbPromise;
+}
+async function dbAddTake(poseId, blob){
+  const db = await dbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(AUDIO_STORE, 'readwrite');
+    const store = tx.objectStore(AUDIO_STORE);
+    const rec = { poseId, blob, mime: blob.type, createdAt: Date.now(), selected: false };
+    const req = store.add(rec);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function dbGetTakesForPose(poseId){
+  try{
+    const db = await dbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(AUDIO_STORE, 'readonly');
+      const idx = tx.objectStore(AUDIO_STORE).index('poseId');
+      const req = idx.getAll(poseId);
+      req.onsuccess = () => resolve((req.result || []).sort((a,b) => b.createdAt - a.createdAt));
+      req.onerror = () => reject(req.error);
+    });
+  }catch(e){ return []; }
+}
+async function dbGetTake(id){
+  const db = await dbOpen();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(AUDIO_STORE, 'readonly').objectStore(AUDIO_STORE).get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function dbDeleteTake(id){
+  const db = await dbOpen();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(AUDIO_STORE, 'readwrite').objectStore(AUDIO_STORE).delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+async function dbSetSelected(poseId, selectedId){
+  const db = await dbOpen();
+  const takes = await dbGetTakesForPose(poseId);
+  const tx = db.transaction(AUDIO_STORE, 'readwrite');
+  const store = tx.objectStore(AUDIO_STORE);
+  takes.forEach(t => { t.selected = (t.id === selectedId); store.put(t); });
+  return new Promise(resolve => { tx.oncomplete = resolve; });
+}
+async function dbGetAllSelectedOrdered(){
+  const result = [];
+  for(const pose of scriptPoses){
+    const takes = await dbGetTakesForPose(pose.id);
+    const sel = takes.find(t => t.selected);
+    if(sel) result.push({ pose, take: sel });
+  }
+  return result;
+}
+
+/* ---- 녹음 ---- */
+let activeRecorder = null;
+let activeStream = null;
+let recordingPoseId = null;
+function micSupported(){
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+async function toggleRecording(poseId){
+  if(recordingPoseId === poseId){
+    if(activeRecorder && activeRecorder.state !== 'inactive') activeRecorder.stop();
+    return;
+  }
+  if(recordingPoseId){ alert('이미 다른 자세를 녹음 중이에요. 먼저 정지해주세요.'); return; }
+  if(!micSupported()){
+    alert('이 브라우저·환경에서는 마이크 녹음 기능을 사용할 수 없어요.\n(파일을 폰에 저장해서 직접 열었다면, 브라우저 보안 정책상 마이크 접근이 막혀있을 수 있어요.)');
+    return;
+  }
+  try{
+    activeStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+  }catch(e){
+    alert('마이크 권한을 허용해주셔야 녹음할 수 있어요. (' + (e && e.name ? e.name : '권한 거부') + ')');
+    return;
+  }
+  recordingPoseId = poseId;
+  const chunks = [];
+  let mime = 'audio/webm';
+  if(window.MediaRecorder && MediaRecorder.isTypeSupported){
+    if(MediaRecorder.isTypeSupported('audio/mp4')) mime = 'audio/mp4';
+    else if(MediaRecorder.isTypeSupported('audio/webm')) mime = 'audio/webm';
+  }
+  try{
+    activeRecorder = new MediaRecorder(activeStream, { mimeType: mime });
+  }catch(e){
+    activeRecorder = new MediaRecorder(activeStream);
+  }
+  activeRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) chunks.push(e.data); };
+  activeRecorder.onstop = async () => {
+    activeStream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(chunks, { type: activeRecorder.mimeType || mime });
+    recordingPoseId = null;
+    activeRecorder = null; activeStream = null;
+    if(blob.size > 0){
+      const newId = await dbAddTake(poseId, blob);
+      const existing = await dbGetTakesForPose(poseId);
+      if(existing.length === 1) await dbSetSelected(poseId, newId); // 첫 녹음은 자동으로 재생목록에 포함
+      renderLabPractice();
+    }
+  };
+  activeRecorder.start();
+  const btn = document.getElementById('rec-btn-' + poseId);
+  const hint = document.getElementById('rec-hint-' + poseId);
+  if(btn){ btn.textContent = '⏹ 정지'; btn.classList.add('recording'); }
+  if(hint){ hint.textContent = '녹음 중… 다 낭독했으면 눌러서 정지'; }
+}
+async function selectTake(takeId, poseId){
+  await dbSetSelected(poseId, takeId);
+  renderLabPractice();
+}
+async function deleteTake(takeId, poseId){
+  if(!confirm('이 녹음을 삭제할까요?')) return;
+  await dbDeleteTake(takeId);
+  renderLabPractice();
+}
+let standaloneAudio = null;
+async function playTakeStandalone(takeId){
+  stopQueue();
+  const take = await dbGetTake(takeId);
+  if(!take) return;
+  const url = URL.createObjectURL(take.blob);
+  if(standaloneAudio){ standaloneAudio.pause(); URL.revokeObjectURL(standaloneAudio.src); }
+  standaloneAudio = new Audio(url);
+  standaloneAudio.play().catch(() => {});
+}
+
+/* ---- 선택한 녹음 이어서 재생 ---- */
+let queueAudio = null;
+let queueList = [];
+let queueIdx = -1;
+async function playSelectedQueue(){
+  stopQueue();
+  const selected = await dbGetAllSelectedOrdered();
+  if(!selected.length){ alert('이어서 재생할 녹음이 없어요. 먼저 각 자세에서 녹음하고 재생 목록에 포함(●)해주세요.'); return; }
+  queueList = selected;
+  queueIdx = -1;
+  document.getElementById('labStopBtn').style.display = 'inline-block';
+  playNextInQueue();
+}
+function playNextInQueue(){
+  queueIdx++;
+  if(queueIdx >= queueList.length){ stopQueue(); return; }
+  const { pose, take } = queueList[queueIdx];
+  const url = URL.createObjectURL(take.blob);
+  if(queueAudio) URL.revokeObjectURL(queueAudio.src);
+  queueAudio = new Audio(url);
+  document.getElementById('labPlayingNow').textContent =
+    '▶ (' + (queueIdx+1) + '/' + queueList.length + ') ' + pose.title;
+  document.querySelectorAll('.lab-practice-card').forEach(c => c.classList.remove('now-playing'));
+  const card = document.getElementById('practice-card-' + pose.id);
+  if(card){ card.classList.add('now-playing'); card.scrollIntoView({behavior:'smooth', block:'center'}); }
+  queueAudio.onended = playNextInQueue;
+  queueAudio.play().catch(() => { playNextInQueue(); });
+}
+function stopQueue(){
+  if(queueAudio){ queueAudio.pause(); queueAudio.onended = null; URL.revokeObjectURL(queueAudio.src); queueAudio = null; }
+  queueList = []; queueIdx = -1;
+  const stopBtn = document.getElementById('labStopBtn');
+  const nowSpan = document.getElementById('labPlayingNow');
+  if(stopBtn) stopBtn.style.display = 'none';
+  if(nowSpan) nowSpan.textContent = '';
+  document.querySelectorAll('.lab-practice-card').forEach(c => c.classList.remove('now-playing'));
+}
+
+function enterMainModule(){
+  document.getElementById('view-home').classList.remove('active');
+  document.getElementById('view-main').classList.add('active');
+  renderMainLearn();
+  resetMainFill();
+  resetDict();
+  setMainTab('learn');
+}
+function exitMainModule(){
+  document.getElementById('view-main').classList.remove('active');
+  document.getElementById('view-home').classList.add('active');
+}
+function setMainTab(name){
+  const prevActive = document.querySelector('#view-main .panel.active');
+  const prevName = prevActive ? prevActive.id.replace('mpanel-','') : null;
+  document.querySelectorAll('#view-main .panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('mpanel-'+name).classList.add('active');
+  document.querySelectorAll('#view-main .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.panel===name));
+  if(prevName && prevName !== name){
+    if(prevName === 'dictate'){ resetDict(); }
+    if(prevName === 'orderfill'){ resetMainFill(); }
+  }
+  if(name==='quiz'){ startMainQuiz(); }
+  if(name !== 'dictate'){
+    setTabbarHidden(false);
+    const panel = document.getElementById('mpanel-dictate');
+    if(panel) panel.classList.remove('dict-typing');
+    document.body.classList.remove('kb-mode');
+  }
+  window.scrollTo(0, 0);
+}
+
+/* ---- Learn ---- */
+function renderMainLearn(){
+  const list = document.getElementById('mainLearnList');
+  list.innerHTML = '';
+  let lastCategory = null;
+  flatMain.forEach((entry) => {
+    if(entry.category !== lastCategory){
+      const header = document.createElement('div');
+      header.className = 'cat-header';
+      header.innerHTML = '<span class="cat-title">' + entry.category + '</span><span class="cat-sub">(' + entry.categoryKr + ')</span>';
+      list.appendChild(header);
+      lastCategory = entry.category;
+    }
+    const row = document.createElement('div');
+    row.className = 'learn-row';
+    const numLabel = entry.cont ? ('↳ ' + entry.num + '번 이어서') : (entry.num + '.');
+    row.innerHTML =
+      '<div class="icon-badge ' + entry.kind + '">' + iconSVGByKey(entry.icon) + '</div>' +
+      '<div>' +
+        '<div class="learn-num">' + numLabel + '</div>' +
+        '<div class="learn-sanskrit">' + entry.kor + '</div>' +
+        '<div class="learn-asana">' + entry.meaning + '</div>' +
+        '<div class="learn-breakdown">' + entry.breakdown + '</div>' +
+      '</div>';
+    list.appendChild(row);
+  });
+}
+
+/* ---- Order fill ---- */
+let mainFillPoolArr = [];
+let mainFillNext = 0;
+
+function resetMainFill(){
+  mainFillPoolArr = flatMain.map((_,i)=>i);
+  shuffleArr(mainFillPoolArr);
+  mainFillNext = 0;
+  document.getElementById('mainFillReveal').innerHTML = '<div class="reveal-placeholder">정답을 맞히면 여기에 뜻과 동작이 표시돼요</div>';
+  document.getElementById('mainFillStatus').textContent = '';
+  document.getElementById('mainFillStatus').className = 'order-status';
+  renderMainFillSlots();
+  renderMainFillPool();
+}
+function renderMainFillSlots(){
+  const box = document.getElementById('mainFillSlots');
+  box.innerHTML = '';
+  const nums = [];
+  flatMain.forEach(e => { if(nums.indexOf(e.num) === -1) nums.push(e.num); });
+  nums.forEach(num => {
+    const groupIdxs = [];
+    flatMain.forEach((e,i) => { if(e.num === num) groupIdxs.push(i); });
+    const revealed = groupIdxs.filter(i => i < mainFillNext);
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (revealed.length > 0 ? ' filled' : '');
+    slot.textContent = revealed.length > 0
+      ? revealed.map(i => flatMain[i].kor.split(' ')[0]).join(' + ')
+      : String(num);
+    box.appendChild(slot);
+  });
+}
+function renderMainFillPool(){
+  const pool = document.getElementById('mainFillPool');
+  pool.innerHTML = '';
+  mainFillPoolArr.forEach(idx => {
+    const chip = document.createElement('button');
+    chip.className = 'order-chip';
+    chip.textContent = flatMain[idx].kor;
+    chip.disabled = idx < mainFillNext;
+    chip.onclick = () => pickMainFillChip(idx);
+    pool.appendChild(chip);
+  });
+}
+function pickMainFillChip(idx){
+  const status = document.getElementById('mainFillStatus');
+  if(idx === mainFillNext){
+    const item = flatMain[idx];
+    mainFillNext++;
+    status.textContent = '';
+    status.className = 'order-status';
+    const row = document.createElement('div');
+    row.className = 'learn-row';
+    row.innerHTML =
+      '<div class="icon-badge ' + item.kind + '">' + iconSVGByKey(item.icon) + '</div>' +
+      '<div>' +
+        '<div class="learn-num">' + item.num + '번</div>' +
+        '<div class="learn-sanskrit">' + item.kor + '</div>' +
+        '<div class="learn-asana">' + item.meaning + '</div>' +
+        '<div class="learn-breakdown">' + item.breakdown + '</div>' +
+      '</div>';
+    const revealBox = document.getElementById('mainFillReveal');
+    revealBox.innerHTML = '';
+    revealBox.appendChild(row);
+    renderMainFillSlots();
+    renderMainFillPool();
+    if(mainFillNext === flatMain.length){
+      status.textContent = '완성했어요! 3번부터 20번까지 끝 🎉';
+      status.className = 'order-status win';
+    }
+  } else {
+    status.textContent = '오답이에요. 다시 골라보세요.';
+    status.className = 'order-status err';
+  }
+}
+
+/* ---- Quiz: description<->name, 20 fixed questions ---- */
+function descQuestion(item){
+  return {
+    mode: 'desc-prompt',
+    label: '이 설명에 해당하는 이름은?',
+    promptText: item.desc,
+    correctText: item.kor,
+    choices: pickChoices(item.kor, flatMain.map(x=>x.kor), 4)
+  };
+}
+function nameQuestion(item){
+  return {
+    mode: 'name-prompt',
+    label: '이 이름에 해당하는 설명은?',
+    promptText: item.kor,
+    correctText: item.desc,
+    choices: pickChoices(item.desc, flatMain.map(x=>x.desc), 4)
+  };
+}
+function generateMainQuestion(item){
+  return Math.random() < 0.5 ? descQuestion(item) : nameQuestion(item);
+}
+function buildMainQuizSet(count){
+  const qs = [];
+  let cycle = [];
+  while(qs.length < count){
+    if(cycle.length === 0){ cycle = shuffleArr(flatMain.map((_,i)=>i)); }
+    const idx = cycle.pop();
+    qs.push(generateMainQuestion(flatMain[idx]));
+  }
+  return qs;
+}
+
+let mainQuizQuestions = [], mainQuizIndex = 0, mainQuizScore = 0;
+
+function startMainQuiz(){
+  mainQuizQuestions = buildMainQuizSet(20);
+  mainQuizIndex = 0;
+  mainQuizScore = 0;
+  document.getElementById('mainQuizPlay').classList.add('active');
+  document.getElementById('mainQuizResult').classList.remove('active');
+  showMainQuizQuestion();
+}
+function showMainQuizQuestion(){
+  const q = mainQuizQuestions[mainQuizIndex];
+  document.getElementById('mainQProgress').textContent = '문제 ' + (mainQuizIndex+1) + ' / 20';
+  document.getElementById('mainQScoreLive').textContent = '정답 ' + mainQuizScore;
+  document.getElementById('mainQLabel').textContent = q.label;
+  const promptBox = document.getElementById('mainQPrompt');
+  const choicesBox = document.getElementById('mainQChoices');
+  choicesBox.innerHTML = '';
+  const nextBtn = document.getElementById('mainNextQBtn');
+  nextBtn.classList.remove('show');
+  nextBtn.textContent = (mainQuizIndex === 19) ? '결과 보기' : '다음 문제 →';
+
+  promptBox.className = q.mode === 'desc-prompt' ? 'q-prompt desc-mode' : 'q-prompt';
+  promptBox.textContent = q.promptText;
+  choicesBox.className = 'choices';
+  q.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerMainQuiz(btn, c, q.correctText);
+    choicesBox.appendChild(btn);
+  });
+}
+function answerMainQuiz(btn, chosen, correctVal){
+  const all = document.querySelectorAll('#mainQChoices .choice-btn');
+  all.forEach(b => b.disabled = true);
+  if(chosen === correctVal){
+    btn.classList.add('correct');
+    mainQuizScore++;
+  } else {
+    btn.classList.add('wrong');
+    all.forEach(b => { if(b.textContent === correctVal) b.classList.add('correct'); });
+  }
+  document.getElementById('mainQScoreLive').textContent = '정답 ' + mainQuizScore;
+  document.getElementById('mainNextQBtn').classList.add('show');
+}
+function nextMainQuizStep(){
+  if(mainQuizIndex < 19){
+    mainQuizIndex++;
+    showMainQuizQuestion();
+  } else {
+    finishMainQuiz();
+  }
+}
+function finishMainQuiz(){
+  document.getElementById('mainQuizPlay').classList.remove('active');
+  document.getElementById('mainQuizResult').classList.add('active');
+  const pct = Math.round(mainQuizScore/20*100);
+  document.getElementById('mainResultScore').textContent = mainQuizScore + ' / 20';
+  document.getElementById('mainResultPct').textContent = pct + '%';
+  let best = 0;
+  try { const s = localStorage.getItem('main-quiz-best'); if(s) best = parseInt(s,10) || 0; } catch(e){}
+  if(mainQuizScore > best){
+    best = mainQuizScore;
+    try { localStorage.setItem('main-quiz-best', String(best)); } catch(e){}
+  }
+  document.getElementById('mainResultBest').textContent = best + ' / 20';
+}
+
+/* =================== DICTATION (받아쓰기) =================== */
+let dictLevel = 1;
+let dictIndex = 0;
+let dictCurrentAnswerWords = null;
+let dictCorrectCount = 0;
+let dictCheatCount = 0;
+let dictRevealing = false;
+
+function setDictLevel(level){
+  dictLevel = level;
+  dictIndex = 0;
+  dictCorrectCount = 0;
+  dictCheatCount = 0;
+  document.querySelectorAll('.dict-level-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.level,10) === level));
+  renderDictItem();
+}
+function resetDict(){
+  dictLevel = 1;
+  dictIndex = 0;
+  dictCorrectCount = 0;
+  dictCheatCount = 0;
+  document.querySelectorAll('.dict-level-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.level,10) === 1));
+  renderDictItem();
+}
+function pickBlankIndices(words){
+  const excluded = ['아사나']; // almost every name ends with this — too easy/pointless to blank out
+  let candidates = words.map((_,i)=>i).filter(i => excluded.indexOf(words[i]) === -1);
+  if(candidates.length === 0) candidates = words.map((_,i)=>i); // fallback if nothing else to pick from
+  const wanted = Math.random() < 0.5 ? 1 : 2;
+  const count = Math.min(wanted, candidates.length);
+  const idxs = shuffleArr(candidates.slice()).slice(0, count).sort((a,b)=>a-b);
+  return idxs;
+}
+function normalizeDict(s){
+  return s.replace(/\s+/g,' ').trim();
+}
+function renderDictItem(){
+  const total = flatMain.length;
+  const playBox = document.getElementById('dictPlay');
+  const doneBox = document.getElementById('dictDone');
+  if(dictIndex >= total){
+    playBox.style.display = 'none';
+    doneBox.style.display = 'block';
+    document.getElementById('dictDoneScore').textContent = dictCorrectCount + ' / ' + total;
+    document.getElementById('dictDoneCheat').textContent = dictCheatCount + '회';
+    return;
+  }
+  playBox.style.display = 'block';
+  doneBox.style.display = 'none';
+
+  const item = flatMain[dictIndex];
+  document.getElementById('dictProgress').textContent = (dictIndex+1) + ' / ' + total;
+  document.getElementById('dictCategory').textContent = item.category + ' (' + item.categoryKr + ')';
+  document.getElementById('dictNumLabel').textContent = item.cont ? ('↳ ' + item.num + '번 이어서') : (item.num + '번');
+  document.getElementById('dictDescHint').textContent = item.desc;
+  const dictIcon = document.getElementById('dictIconBadge');
+  dictIcon.className = 'icon-badge dict-icon' + (item.kind !== 'asana' ? (' ' + item.kind) : '');
+  dictIcon.innerHTML = iconSVGByKey(item.icon);
+
+  const targetBox = document.getElementById('dictTargetArea');
+  const input = document.getElementById('dictInput');
+  input.value = '';
+  input.style.height = 'auto';
+  input.className = 'dict-input';
+  input.disabled = false;
+  document.getElementById('dictFeedback').textContent = '';
+  document.getElementById('dictFeedback').className = 'dict-feedback';
+  document.getElementById('dictRevealBox').style.display = 'none';
+  document.getElementById('dictNextBtn').classList.remove('show');
+  document.getElementById('dictCheckBtn').style.display = 'block';
+  document.getElementById('dictCheatBtn').textContent = '🔎 컨닝';
+  document.getElementById('dictCheatBtn').classList.remove('active');
+  dictRevealing = false;
+
+  if(dictLevel === 1){
+    targetBox.innerHTML = '<div class="dict-target-text">' + item.kor + '</div>';
+    input.placeholder = '위 글자를 그대로 따라 입력해보세요';
+    dictCurrentAnswerWords = null;
+  } else if(dictLevel === 2){
+    const words = item.kor.split(' ');
+    const blankIdxs = pickBlankIndices(words);
+    const displayWords = words.map((w,i) => blankIdxs.indexOf(i) !== -1 ? '<span class="blank-slot">____</span>' : w);
+    targetBox.innerHTML = '<div class="dict-target-text">' + displayWords.join(' ') + '</div>';
+    input.placeholder = '빈칸 단어를 순서대로 입력 (띄어쓰기로 구분)';
+    dictCurrentAnswerWords = blankIdxs.map(i => words[i]);
+  } else {
+    targetBox.innerHTML = '<div class="dict-meaning-hint">' + item.meaning + '</div>';
+    input.placeholder = '이름 전체를 기억나는 대로 입력해보세요';
+    dictCurrentAnswerWords = null;
+  }
+  /* no auto-focus here on purpose — typing/keyboard mode should only start
+     when the person deliberately taps the input, not on level/item change */
+}
+function dictAnswerIsCorrect(item, rawValue){
+  const typed = normalizeDict(rawValue);
+  if(dictLevel === 2 && dictCurrentAnswerWords){
+    const typedWords = typed.split(' ').filter(Boolean);
+    const expected = dictCurrentAnswerWords.map(normalizeDict);
+    return typedWords.length === expected.length && typedWords.every((w,i) => w === expected[i]);
+  }
+  return typed === normalizeDict(item.kor);
+}
+function onDictInputTyping(el){
+  /* auto-resize the box as text is typed */
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+  /* if what's typed now exactly matches the answer, submit automatically —
+     no need to close the keyboard and tap 확인 by hand */
+  if(el.value.trim() === '') return;
+  const item = flatMain[dictIndex];
+  if(item && dictAnswerIsCorrect(item, el.value)){
+    checkDictAnswer();
+  }
+}
+function checkDictAnswer(){
+  const item = flatMain[dictIndex];
+  const input = document.getElementById('dictInput');
+  if(input.disabled) return;
+  const isCorrect = dictAnswerIsCorrect(item, input.value);
+  const feedback = document.getElementById('dictFeedback');
+  /* explicitly close the keyboard and restore the hidden header/tabbar right
+     now, rather than relying on a blur event that disabling the field may
+     not reliably fire on every mobile browser */
+  input.blur();
+  input.disabled = true;
+  setTabbarHidden(false);
+  const dictPanelEl = document.getElementById('mpanel-dictate');
+  if(dictPanelEl) dictPanelEl.classList.remove('dict-typing');
+  document.body.classList.remove('kb-mode');
+  document.getElementById('dictCheckBtn').style.display = 'none';
+  document.getElementById('dictNextBtn').classList.add('show');
+  if(isCorrect){
+    input.className = 'dict-input correct';
+    feedback.textContent = '정답이에요!';
+    feedback.className = 'dict-feedback correct';
+    dictCorrectCount++;
+  } else {
+    input.className = 'dict-input wrong';
+    feedback.innerHTML = '아쉬워요. 정답: <b>' + item.kor + '</b>';
+    feedback.className = 'dict-feedback wrong';
+  }
+  /* the keyboard-close animation takes a moment; scroll a couple of times
+     while it settles so the 다음 button ends up visible either way */
+  const revealNextBtn = () => {
+    const nextBtn = document.getElementById('dictNextBtn');
+    if(nextBtn) nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  setTimeout(revealNextBtn, 150);
+  setTimeout(revealNextBtn, 400);
+  setTimeout(revealNextBtn, 700);
+}
+function startDictCheat(e){
+  if(e){
+    if(e.cancelable) e.preventDefault();
+    if(e.pointerId !== undefined && e.target && e.target.setPointerCapture){
+      try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
+    }
+  }
+  if(dictRevealing) return;
+  const item = flatMain[dictIndex];
+  const box = document.getElementById('dictRevealBox');
+  const btn = document.getElementById('dictCheatBtn');
+  box.textContent = item.kor;
+  box.style.display = 'block';
+  btn.classList.add('active');
+  dictRevealing = true;
+  dictCheatCount++;
+}
+function endDictCheat(e){
+  if(e && e.cancelable) e.preventDefault();
+  if(!dictRevealing) return;
+  const box = document.getElementById('dictRevealBox');
+  const btn = document.getElementById('dictCheatBtn');
+  box.style.display = 'none';
+  btn.classList.remove('active');
+  dictRevealing = false;
+  /* typed answer is preserved on purpose — cheat only peeks, it never erases what you wrote */
+}
+function nextDictItem(){
+  dictIndex++;
+  renderDictItem();
+  window.scrollTo(0, 0);
+}
+function restartDict(){
+  dictIndex = 0;
+  dictCorrectCount = 0;
+  dictCheatCount = 0;
+  renderDictItem();
+}
+
+/* keep the focused field visible above the on-screen keyboard */
+function setTabbarHidden(hidden){
+  const bar = document.querySelector('nav.tabbar');
+  if(bar) bar.classList.toggle('kb-hidden', hidden);
+}
+function scrollFocusedInputIntoView(el){
+  setTabbarHidden(true);
+  const panel = document.getElementById('mpanel-dictate');
+  if(panel) panel.classList.add('dict-typing');
+  document.body.classList.add('kb-mode');
+  const doScroll = () => el.scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(doScroll, 50);
+  setTimeout(doScroll, 350);
+}
+function onDictInputBlur(){
+  setTimeout(() => {
+    if(document.activeElement !== document.getElementById('dictInput')){
+      setTabbarHidden(false);
+      const panel = document.getElementById('mpanel-dictate');
+      if(panel) panel.classList.remove('dict-typing');
+      document.body.classList.remove('kb-mode');
+    }
+  }, 100);
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', () => {
+    const active = document.activeElement;
+    const shrunk = window.visualViewport.height < window.innerHeight * 0.75;
+    setTabbarHidden(shrunk);
+    if(active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')){
+      active.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+}
+
+/* init */
+renderLearn();
+resetFill();
+</script>
+</body>
+</html>
